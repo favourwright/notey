@@ -1,59 +1,138 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Link, useNavigation } from 'expo-router';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, FlatList, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import NameNGreeting from '@/components/header/NameNGreeting';
+import FilterPills from '@/components/FilterPills';
+import type { NoteItemType } from '@/components/note/NoteItem';
+import Notelist from '@/components/note/Notelist';
+
+const sampleNotes:NoteItemType[] = [
+  {
+    id: 1,
+    title: 'First note',
+    content: 'This is the first note',
+    createdAt: new Date(),
+  },
+  {
+    id: 2,
+    title: 'Second note',
+    content: 'This is the second note',
+    createdAt: new Date(),
+  },
+  {
+    id: 3,
+    title: 'Third note',
+    content: 'This is the third note',
+    createdAt: new Date(),
+  },
+  {
+    id: 4,
+    title: 'Fourth note',
+    content: 'This is the fourth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 5,
+    title: 'Fifth note',
+    content: 'This is the fifth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 6,
+    title: 'Sixth note',
+    content: 'This is the sixth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 7,
+    title: 'Seventh note',
+    content: 'This is the seventh note',
+    createdAt: new Date(),
+  },
+  {
+    id: 8,
+    title: 'Eighth note',
+    content: 'This is the eighth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 9,
+    title: 'Ninth note',
+    content: 'This is the ninth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 10,
+    title: 'Tenth note',
+    content: 'This is the tenth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 11,
+    title: 'Eleventh note',
+    content: 'This is the eleventh note',
+    createdAt: new Date(),
+  },
+  {
+    id: 12,
+    title: 'Twelfth note',
+    content: 'This is the twelfth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 13,
+    title: 'Thirteenth note',
+    content: 'This is the thirteenth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 14,
+    title: 'Fourteenth note',
+    content: 'This is the fourteenth note',
+    createdAt: new Date(),
+  },
+]
 
 export default function Home() {
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        <View className='flex-row items-center gap-3'>
-          <View
-            className='h-10 aspect-square rounded-full bg-accent/20
-            items-center justify-center'>
-            <Text className='text-accent text-3xl font-black'>A</Text>
-          </View>
-
-          <View className='flex-row gap-1'>
-            <Text className='text-secondary/50 text-xl'>morning,</Text>
-            <Text className='text-secondary text-xl'>Justin</Text>
-          </View>
-        </View>
-      ),
+      headerLeft: () => <NameNGreeting name="Favour" />,
     });
   }, [navigation]);
+
+  const [selectedFilter, setSelectedFilter] = useState<string|null>('lists')
+  const [filterList, setFilterList] = useState([
+    'personal',
+    'work',
+    'home',
+    'study',
+    'books',
+    'articles',
+    'lists',
+  ])
 
   return (
     <View className="flex-1 bg-primary">
       <StatusBar style="light" />
-      <ScrollView automaticallyAdjustContentInsets automaticallyAdjustsScrollIndicatorInsets className="flex-1">
-        {[1,2,3].map((_,i)=><View key={i} className="py-12 md:py-24 lg:py-32 xl:py-48">
-          <View className="px-4 md:px-6">
-            <View className="flex flex-col items-center gap-4 text-center">
-              <Text
-                role="heading"
-                className="text-3xl text-secondary text-center native:text-5xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl"
-              >
-                Welcome to Project ACME
-              </Text>
-              <Text className="mx-auto max-w-[700px] text-lg text-center text-gray-500 md:text-xl dark:text-gray-400">
-                Discover and collaborate on amce. Explore our services now.
-              </Text>
-
-              <View className="gap-4">
-                <Link
-                  suppressHighlighting
-                  className="flex h-9 items-center justify-center overflow-hidden rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 web:shadow ios:shadow transition-colors hover:bg-gray-900/90 active:bg-gray-400/90 web:focus-visible:outline-none web:focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-                  href="/new"
-                >
-                  New Note
-                </Link>
-              </View>
-            </View>
+      <ScrollView className="flex-1" stickyHeaderIndices={[1]}>
+        <View className='px-5 mt-10 flex-row items-end mb-8'>
+          <View className='flex-grow gap-4'>
+            <Text className='text-6xl text-secondary font-medium'>Your</Text>
+            <Text className='text-6xl text-secondary font-medium pl-10'>notes</Text>
           </View>
-        </View>)}
+          <Text className='text-6xl text-secondary/20 font-medium'>/14</Text>
+        </View>
+
+        <View className='bg-primary py-2'>
+          <FilterPills list={filterList} selected={selectedFilter} onChange={setSelectedFilter} />
+        </View>
+
+        <View className='mt-8 px-5'>
+          <Notelist notes={sampleNotes} />
+        </View>
       </ScrollView>
     </View>
   );
