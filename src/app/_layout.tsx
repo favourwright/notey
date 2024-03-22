@@ -1,6 +1,15 @@
 import "../global.css";
-import { Slot } from "expo-router";
+import { Stack } from 'expo-router/stack';
 
-export default function Layout() {
-  return <Slot />;
+export default function AppLayout() {
+  return (
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="new" options={{
+        headerStyle: { backgroundColor: 'white' },
+        headerTitleStyle: { color: 'black' },
+        headerBackTitleVisible: false,
+      }} />
+    </Stack>
+  );
 }
