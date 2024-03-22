@@ -1,6 +1,6 @@
 {
   "expo": {
-    "scheme": "acme",
+    "scheme": "notes-app-x",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
