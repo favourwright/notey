@@ -9,7 +9,7 @@ export default function AppLayout() {
   const { navigate } = useRouter();
 
   return (
-    <Stack screenOptions={{ animation:'slide_from_right' }}>
+    <Stack screenOptions={{}}>
       <Stack.Screen name="index" options={{
         headerStyle: { backgroundColor: Colors.dark.background },
         // contentStyle: {
