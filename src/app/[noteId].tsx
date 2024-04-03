@@ -9,7 +9,7 @@ import Seperator from '@/components/Seperator';
 
 // Regular expressions
 const quantityPattern = /[x|X|*](\d+)/;
-const pricePattern = /(\$|\#)\d+\.\d+|\$\d+/; // Separated pattern for price
+const pricePattern = /(\$|\#)\d+(\.\d+|\$\d+)?/; // Separated pattern for price
 const itemRegex = /(○|-)? (.+) - \$([0-9]+(\.[0-9]+)?)?/g;
 
 // Function to process the grocery list string
@@ -40,27 +40,15 @@ const NewNote = () => {
 
   const [title, setTitle] = useState('Shopping List')
   const [content, setContent] = useState(`
-    ○  Milk - $4.50
-    ○  Eggs x12 - $3.00
-    ○  Bread x2 - $2.00
-    ○  Butter - $1.50
-    ○  Cheese x2 - $5.00
-
-    ---
-
-    Milk - $4.50
-    Eggs x12 - $3.00
-    Bread x2 - $2.00
-    Butter - $1.50
-    Cheese x2 - $5.00
-
-    ---
-
-    - Milk - $4.50
-    - Eggs x12 - $3.00
-    - Bread x2 - $2.00
-    - Butter - $1.50
-    - Cheese x2 - $5.00
+Meat 🍖 - #3000
+- Vegetables 🥦 - #500
+● Cucumber - $200
+Beans x4 - #400
+Eggs 🥚 - #3600
+Garri - #1000
+Groundnut Oil - #6500
+Tomatoes 🍅 - #1000
+- Onions - #900
   `)
   const [detectedTotalCost, setDetectedTotalCost] = useState(0)
   const [detectedCurrencySymbol, setDetectedCurrencySymbol] = useState('#')
@@ -116,7 +104,7 @@ const NewNote = () => {
           {!!detectedTotalCost && <View className='pl-2 flex-row items-center'>
             <Text className='text-3xl text-accent'>{detectedCurrencySymbol}</Text>
             <Text className='text-3xl'>
-              {detectedTotalCost.toFixed(2)}
+              {detectedTotalCost.toLocaleString()}
             </Text>
           </View>}
         </View>
