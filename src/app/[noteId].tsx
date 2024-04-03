@@ -45,6 +45,22 @@ const NewNote = () => {
     ○  Bread x2 - $2.00
     ○  Butter - $1.50
     ○  Cheese x2 - $5.00
+
+    ---
+
+    Milk - $4.50
+    Eggs x12 - $3.00
+    Bread x2 - $2.00
+    Butter - $1.50
+    Cheese x2 - $5.00
+
+    ---
+
+    - Milk - $4.50
+    - Eggs x12 - $3.00
+    - Bread x2 - $2.00
+    - Butter - $1.50
+    - Cheese x2 - $5.00
   `)
   const [detectedTotalCost, setDetectedTotalCost] = useState(0)
   const [detectedCurrencySymbol, setDetectedCurrencySymbol] = useState('#')
