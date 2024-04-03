@@ -17,12 +17,12 @@ export default function AppLayout() {
         //   borderTopWidth: 1,
         // },
         headerRight: () => (
-          <TouchableOpacity activeOpacity={.8} onPress={() => navigate('new')}>
-            <AntDesign name="plus" size={24} color={Colors.dark.text} />
+          <TouchableOpacity activeOpacity={.8} onPress={() => navigate('/undefined')}>
+            <AntDesign name="pluscircle" size={24} color={Colors.dark.text} />
           </TouchableOpacity>
         ),
       }} />
-      <Stack.Screen name="new" options={{
+      <Stack.Screen name="[noteId]" options={{
         headerStyle: { backgroundColor: 'white' },
         headerTitleStyle: { color: 'black' },
         headerBackTitleVisible: false,

@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableHighlight
 } from 'react-native'
+import { useNavigation } from 'expo-router';
 
 type Props = {
   list: string[]
@@ -15,11 +16,13 @@ type Props = {
 const FilterPills = ({list=[], selected, onChange}:Props) => {
   const filterRef = useRef<FlatList>(null)
   const [activeFilter, setActiveFilter] = useState<string|null>(selected || null)
+  const navigation = useNavigation()
   
   const handleSelection = ({item, index}: {item: string, index: number}) => {
     filterRef.current?.scrollToIndex({index, animated: true})
     onChange(item)
     setActiveFilter(item)
+    navigation.setParams({ active_category: item  } as undefined);
   }
   useEffect(() => {
     setTimeout(() => {
