@@ -9,7 +9,7 @@ import Seperator from '@/components/Seperator';
 
 // Regular expressions
 const quantityPattern = /[x|X|*](\d+)/;
-const pricePattern = /(\$|\#)\d+(\.\d+|\$\d+)?/; // Separated pattern for price
+const pricePattern = /(\$|\#|N)(\d+)[,]?(\d+)?(\.\d+|\$\d+)?/; // Separated pattern for price
 const itemRegex = /(○|-)? (.+) - \$([0-9]+(\.[0-9]+)?)?/g;
 
 // Function to process the grocery list string
@@ -40,14 +40,14 @@ const NewNote = () => {
 
   const [title, setTitle] = useState('Shopping List')
   const [content, setContent] = useState(`
-Meat 🍖 - #3000
+Meat 🍖 - #3,000
 - Vegetables 🥦 - #500
 ● Cucumber - $200
 Beans x4 - #400
-Eggs 🥚 - #3600
+Eggs 🥚 - #3,600
 Garri - #1000
-Groundnut Oil - #6500
-Tomatoes 🍅 - #1000
+Groundnut Oil - #6,500
+Tomatoes 🍅 - #1,000
 - Onions - #900
   `)
   const [detectedTotalCost, setDetectedTotalCost] = useState(0)
