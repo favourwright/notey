@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { Link, useNavigation } from 'expo-router';
-import { View, Text, ScrollView, FlatList, Pressable } from 'react-native';
+import { useNavigation } from 'expo-router';
+import { View, Text, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import NameNGreeting from '@/components/header/NameNGreeting';
 import FilterPills from '@/components/FilterPills';
@@ -92,6 +92,54 @@ const sampleNotes:NoteItemType[] = [
     content: 'This is the fourteenth note',
     createdAt: new Date(),
   },
+  {
+    id: 15,
+    title: 'Fifteenth note',
+    content: 'This is the fifteenth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 16,
+    title: 'Sixteenth note',
+    content: 'This is the sixteenth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 17,
+    title: 'Seventeenth note',
+    content: 'This is the seventeenth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 18,
+    title: 'Eighteenth note',
+    content: 'This is the eighteenth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 19,
+    title: 'Nineteenth note',
+    content: 'This is the nineteenth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 20,
+    title: 'Twentieth note',
+    content: 'This is the twentieth note',
+    createdAt: new Date(),
+  },
+  {
+    id: 21,
+    title: 'Twenty-first note',
+    content: 'This is the twenty-first note',
+    createdAt: new Date(),
+  },
+  {
+    id: 22,
+    title: 'Twenty-second note',
+    content: 'This is the twenty-second note',
+    createdAt: new Date(),
+  },
 ]
 
 export default function Home() {
@@ -123,7 +171,7 @@ export default function Home() {
             <Text className='text-6xl text-secondary font-medium'>Your</Text>
             <Text className='text-6xl text-secondary font-medium pl-10'>notes</Text>
           </View>
-          <Text className='text-6xl text-secondary/20 font-medium'>/14</Text>
+          <Text className='text-6xl text-secondary/20 font-medium'>/{sampleNotes.length}</Text>
         </View>
 
         <View className='bg-primary py-2'>
