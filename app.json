@@ -15,13 +15,15 @@
       "backgroundColor": "#FDFCDD"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.favourwright.notesappx"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#FDFCDD"
-      }
+      },
+      "package": "com.favourwright.notesappx"
     },
     "plugins": [
       [
@@ -32,6 +34,14 @@
       ]
     ],
     "name": "notes-app-x",
-    "slug": "notes-app-x"
+    "slug": "notes-app-x",
+    "extra": {
+      "router": {
+        "origin": "https://n"
+      },
+      "eas": {
+        "projectId": "8e5e8abd-01d5-48e0-89ec-6f9ef0db5713"
+      }
+    }
   }
 }
