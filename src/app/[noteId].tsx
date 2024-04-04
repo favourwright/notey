@@ -166,10 +166,10 @@ const NewNote = () => {
           bg-accent mt-2 px-5 py-3 rounded-full shadow-lg shadow-primary/20`}>
           {
           !hasNoteId ?
-            <Entypo name="save" size={20} className='!text-black/50' /> :
-            <Entypo name="edit" size={20} className='!text-black/50' />
+            <Entypo name="save" size={20} className='!text-black/70' /> :
+            <Entypo name="edit" size={20} className='!text-black/70' />
           }
-          <Text className='text-2xl text-black/50'>{!hasNoteId ? 'save' : 'update'}</Text>
+          <Text className='text-2xl text-black/70'>{!hasNoteId ? 'save' : 'update'}</Text>
         </Pressable>
       </View>
     </View>
