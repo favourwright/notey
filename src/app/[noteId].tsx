@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { format } from "date-fns";
-import { getNoteById, saveNote, type NoteType } from '@/store/notes';
+import { getNoteById, saveNote, deleteNote, type NoteType } from '@/store/notes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Seperator from '@/components/Seperator';
 import Colors from '@/constants/Colors';
@@ -100,8 +100,8 @@ const NewNote = () => {
         </TouchableOpacity>
       ),
       headerRight: () => (
-        <TouchableOpacity activeOpacity={.8} onPress={handleSaveNote}>
-          <Text className='text-2xl'>{!hasNoteId ? 'save' : 'update'}</Text>
+        <TouchableOpacity activeOpacity={.8} onPress={hasNoteId ? handleDeleteNote : handleSaveNote}>
+          <Text className='text-2xl'>{!hasNoteId ? 'save' : 'delete'}</Text>
         </TouchableOpacity>
       ),
       headerShadowVisible: false,
@@ -119,6 +119,11 @@ const NewNote = () => {
       updatedAt: new Date(),
     }
     saveNote(note)
+    navigation.goBack()
+  }
+  const handleDeleteNote = async () => {
+    // delete note
+    await deleteNote(params.noteId as string)
     navigation.goBack()
   }
 

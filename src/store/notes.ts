@@ -58,3 +58,13 @@ export const clearAllNotes = async () => {
     console.log({ClearAllNotesError: e})
   }
 }
+
+export const deleteNote = async (noteId:string) => {
+  try {
+    const previousNotes = await getAllNotes()
+    const newNotes = previousNotes.filter(note => note.id !== noteId)
+    await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newNotes))
+  } catch (e) {
+    console.log({DeleteNoteError: e})
+  }
+}
