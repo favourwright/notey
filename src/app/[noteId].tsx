@@ -1,10 +1,11 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { format } from "date-fns";
 import { getNoteById, saveNote, type NoteType } from '@/store/notes';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Seperator from '@/components/Seperator';
 import Colors from '@/constants/Colors';
 import Feather from '@expo/vector-icons/Feather';
@@ -49,6 +50,7 @@ const NewNote = () => {
   const navigation = useNavigation()
   const params = useLocalSearchParams()
   const hasNoteId = params.noteId !== 'undefined'
+  const { bottom } = useSafeAreaInsets()
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -103,7 +105,7 @@ const NewNote = () => {
       ),
       headerShadowVisible: false,
     })
-  }, [navigation])
+  }, [navigation, title, content])
 
   // handle saving / updating note
   const handleSaveNote = () => {
