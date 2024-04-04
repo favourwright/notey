@@ -14,7 +14,7 @@ import uuid from 'react-native-uuid';
 
 // Regular expressions
 const quantityPattern = /[x|X|*](\d+)/;
-const pricePattern = /(\$|\#|N)(\d+)[,]?(\d+)?(\.\d+|\$\d+)?/; // Separated pattern for price
+const pricePattern = /([$#€¥£₽\₩N₦])(\d+)([,]?(\d+)?(\.\d+|\$\d+)?)*/; // Separated pattern for price
 const itemRegex = /(○|-)? (.+) - \$([0-9]+(\.[0-9]+)?)?/g;
 
 // Function to process the grocery list string
