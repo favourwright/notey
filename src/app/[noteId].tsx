@@ -2,10 +2,13 @@ import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-nativ
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import Entypo from '@expo/vector-icons/Entypo';
-import Colors from '@/constants/Colors';
 import { StatusBar } from 'expo-status-bar';
+import { format } from "date-fns";
+import { getNoteById, saveNote, type NoteType } from '@/store/notes';
 import Seperator from '@/components/Seperator';
+import Colors from '@/constants/Colors';
+import Feather from '@expo/vector-icons/Feather';
+import uuid from 'react-native-uuid';
 
 // Regular expressions
 const quantityPattern = /[x|X|*](\d+)/;
@@ -15,10 +18,10 @@ const itemRegex = /(○|-)? (.+) - \$([0-9]+(\.[0-9]+)?)?/g;
 // Function to process the grocery list string
 const processGroceryList = (groceryListString:string) => {
   // Split the string into a list by newlines
-  const groceryList = groceryListString.split("\n");
+  const groceryList = groceryListString?.split("\n");
 
   // Process each item to extract data
-  return groceryList.map((item) => {
+  return (groceryList || []).map((item) => {
     const itemName = item.replace(itemRegex, "$1"); // Extract item name
     const quantityMatch = item.match(quantityPattern);
     const quantity = quantityMatch ? parseInt(quantityMatch[1]) : 1;
@@ -27,31 +30,49 @@ const processGroceryList = (groceryListString:string) => {
   });
 };
 
+// used to extract number from mixed string
 export const useNumberFromMixedString = (string: string)=> {
   return Number(string.replace(/[^0-9.-]+/g, ''))
 }
 
+const sampleGroceryList = [
+  "Meat 🍖 - #3,000",
+  "- Vegetables 🥦 - #500",
+  "● Cucumber 🥒 - $1,000",
+  "Beans x4 - #400",
+  "Eggs 🥚 #3,600",
+  "Garri #1000",
+  "- Onions 🧅 - #900",
+]
+
 const NewNote = () => {
   const navigation = useNavigation()
-  const { navigate } = useRouter()
   const params = useLocalSearchParams()
-
   const hasNoteId = params.noteId !== 'undefined'
 
-  const [title, setTitle] = useState('Shopping List')
-  const [content, setContent] = useState(`
-Meat 🍖 - #3,000
-- Vegetables 🥦 - #500
-● Cucumber - $200
-Beans x4 - #400
-Eggs 🥚 - #3,600
-Garri - #1000
-Groundnut Oil - #6,500
-Tomatoes 🍅 - #1,000
-- Onions - #900
-  `)
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
   const [detectedTotalCost, setDetectedTotalCost] = useState(0)
   const [detectedCurrencySymbol, setDetectedCurrencySymbol] = useState('#')
+
+  // set some guide default values
+  useEffect(()=>{
+    if(hasNoteId) return
+    setTitle('Sample shopping List')
+    setContent(sampleGroceryList.join('\n'))
+  },[])
+
+  // fetch note details if noteId is available
+  useEffect(() => {
+    // get note details
+    if (!hasNoteId) return
+    (async () => {
+      const note = await getNoteById(params.noteId as string || '')
+      if (!note) return
+      setTitle(note.title)
+      setContent(note.content)
+    })()
+  },[])
 
   useEffect(()=>{
     // Process the grocery list string
@@ -62,6 +83,7 @@ Tomatoes 🍅 - #1,000
     const totalCost = eachItemCost.reduce((a, b) => a + b, 0)
     setDetectedTotalCost(totalCost)
     // get currency symbol
+    if (!content) return
     const currencySymbol = content.match(pricePattern)?.[0].charAt(0)
     setDetectedCurrencySymbol(currencySymbol || '#')
   }, [content])
@@ -71,11 +93,11 @@ Tomatoes 🍅 - #1,000
       title: null,
       headerLeft: () => (
         <TouchableOpacity activeOpacity={.8} onPress={() => navigation.goBack()}>
-          <Entypo name="chevron-thin-left" size={23} color={Colors.dark.background} />
+          <Feather name="arrow-left" size={26} color={Colors.dark.background} />
         </TouchableOpacity>
       ),
       headerRight: () => (
-        <TouchableOpacity activeOpacity={.8} onPress={() => navigate('/undefined')}>
+        <TouchableOpacity activeOpacity={.8} onPress={handleSaveNote}>
           <Text className='text-2xl'>{!hasNoteId ? 'save' : 'update'}</Text>
         </TouchableOpacity>
       ),
@@ -83,15 +105,31 @@ Tomatoes 🍅 - #1,000
     })
   }, [navigation])
 
+  // handle saving / updating note
+  const handleSaveNote = () => {
+    let note:NoteType = {
+      id: (hasNoteId ? params.noteId : uuid.v4()) as string,
+      title,
+      content,
+      categoryId: 'grocery', // should be an id from the category store
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    saveNote(note)
+    navigation.goBack()
+  }
+
   return (
     <View className='flex-1 bg-white'>
-      <StatusBar style='dark' />
+      <StatusBar style='dark' backgroundColor='white' />
       <Seperator className='mt-1' color='bg-gray-500' height='h-0.5' />
       
       <View className='h-full flex-1'>
         <View className='flex-row justify-between px-5 mt-4'>
-          <Text className='text-gray-400'>18 / 11 / 22</Text>
-          <Text className='text-gray-400'>#work</Text>
+          <Text className='text-gray-400'>
+            {format(new Date(), "dd / MM / yy")}
+          </Text>
+          <Text className='text-gray-400'>#grocery</Text>
         </View>
         <View className='flex-row justify-between items-center mt-2 px-5'>
           <TextInput
