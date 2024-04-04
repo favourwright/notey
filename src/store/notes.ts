@@ -17,7 +17,7 @@ export const saveNote = async (payload:NoteType) => {
     const previousNotes = await getAllNotes()
     // check if note already exists
     const excludExistingNote = previousNotes.filter(note => note.id !== payload.id)
-    const newNotes = [...excludExistingNote, payload]
+    const newNotes = [payload, ...excludExistingNote]
     await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newNotes))
   } catch (e) {
     console.log({SaveNoteError: e})
