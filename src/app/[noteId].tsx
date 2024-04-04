@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Seperator from '@/components/Seperator';
 import Colors from '@/constants/Colors';
 import Feather from '@expo/vector-icons/Feather';
+import Entypo from '@expo/vector-icons/Entypo';
 import uuid from 'react-native-uuid';
 
 // Regular expressions
@@ -158,6 +159,18 @@ const NewNote = () => {
           numberOfLines={1}
           // selectionColor={Colors.dark.text}
         />
+        <Pressable
+          onPress={handleSaveNote}
+          style={{elevation: 5}}
+          className={`absolute bottom-10 right-5 flex-row self-end justify-center items-center gap-2
+          bg-accent mt-2 px-5 py-3 rounded-full shadow-lg shadow-primary/20`}>
+          {
+          !hasNoteId ?
+            <Entypo name="save" size={20} className='!text-black/50' /> :
+            <Entypo name="edit" size={20} className='!text-black/50' />
+          }
+          <Text className='text-2xl text-black/50'>{!hasNoteId ? 'save' : 'update'}</Text>
+        </Pressable>
       </View>
     </View>
   )
