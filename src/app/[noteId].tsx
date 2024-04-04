@@ -128,6 +128,7 @@ const NewNote = () => {
   const handleSaveNote = () => {
     saveNote({
       ...note,
+      title: !!note.title.trim() ? note.title : 'untitled note',
       updatedAt: new Date()
     })
     navigation.goBack()
@@ -148,14 +149,14 @@ const NewNote = () => {
           <Text className='text-gray-400'>
             {format(note.updatedAt, "dd / MM / yy")}
           </Text>
-          <Text className='text-gray-400'>#grocery</Text>
+          <Text className='text-gray-400'>#{note.category?.name || 'grocery'}</Text>
         </View>
         <View className='flex-row justify-between items-center mt-2 px-5'>
           <TextInput
             value={note.title}
             onChangeText={(text) => setNote({...note, title: text})}
             className='text-3xl py-2 flex-1'
-            placeholder='Untitled Note'
+            placeholder='untitled Note'
           />
           {!!detectedTotalCost && <View className='pl-2 flex-row items-center'>
             <Text className='text-3xl text-accent'>{detectedCurrencySymbol}</Text>
