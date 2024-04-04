@@ -53,16 +53,33 @@ const NewNote = () => {
   const hasNoteId = params.noteId !== 'undefined'
   const { bottom } = useSafeAreaInsets()
 
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [note, setNote] = useState<NoteType>({
+    id: '',
+    title: '',
+    content: '',
+    categoryId: '',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  })
   const [detectedTotalCost, setDetectedTotalCost] = useState(0)
   const [detectedCurrencySymbol, setDetectedCurrencySymbol] = useState('#')
 
+  const contentInputRef = useRef<TextInput>(null)
   // set some guide default values
   useEffect(()=>{
-    if(hasNoteId) return
-    setTitle('Sample shopping List')
-    setContent(sampleGroceryList.join('\n'))
+    if(!hasNoteId) {
+      setNote({
+        id: uuid.v4() as string,
+        title: 'Sample shopping List',
+        content: sampleGroceryList.join('\n'),
+        categoryId: 'grocery',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+    }
+
+    // focus on content input if noteId is not available
+    if(!hasNoteId) contentInputRef.current?.focus()
   },[])
 
   // fetch note details if noteId is available
@@ -72,24 +89,23 @@ const NewNote = () => {
     (async () => {
       const note = await getNoteById(params.noteId as string || '')
       if (!note) return
-      setTitle(note.title)
-      setContent(note.content)
+      setNote(note)
     })()
   },[])
 
   useEffect(()=>{
     // Process the grocery list string
-    const processedList = processGroceryList(content);
+    const processedList = processGroceryList(note.content);
     const eachItemCost = processedList.map((item) => {
       return useNumberFromMixedString((item.price as string) || '') * item.quantity
     }).filter(Boolean)
     const totalCost = eachItemCost.reduce((a, b) => a + b, 0)
     setDetectedTotalCost(totalCost)
     // get currency symbol
-    if (!content) return
-    const currencySymbol = content.match(pricePattern)?.[0].charAt(0)
+    if (!note.content) return
+    const currencySymbol = note.content.match(pricePattern)?.[0].charAt(0)
     setDetectedCurrencySymbol(currencySymbol || '#')
-  }, [content])
+  }, [note.content])
   
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -106,19 +122,14 @@ const NewNote = () => {
       ),
       headerShadowVisible: false,
     })
-  }, [navigation, title, content])
+  }, [navigation, note.title, note.content])
 
   // handle saving / updating note
   const handleSaveNote = () => {
-    let note:NoteType = {
-      id: (hasNoteId ? params.noteId : uuid.v4()) as string,
-      title,
-      content,
-      categoryId: 'grocery', // should be an id from the category store
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-    saveNote(note)
+    saveNote({
+      ...note,
+      updatedAt: new Date()
+    })
     navigation.goBack()
   }
   const handleDeleteNote = async () => {
@@ -135,17 +146,16 @@ const NewNote = () => {
       <View className='h-full flex-1'>
         <View className='flex-row justify-between px-5 mt-4'>
           <Text className='text-gray-400'>
-            {format(new Date(), "dd / MM / yy")}
+            {format(note.updatedAt, "dd / MM / yy")}
           </Text>
           <Text className='text-gray-400'>#grocery</Text>
         </View>
         <View className='flex-row justify-between items-center mt-2 px-5'>
           <TextInput
-            value={title}
-            onChangeText={setTitle}
+            value={note.title}
+            onChangeText={(text) => setNote({...note, title: text})}
             className='text-3xl py-2 flex-1'
             placeholder='Untitled Note'
-            // selectionColor={Colors.dark.text}
           />
           {!!detectedTotalCost && <View className='pl-2 flex-row items-center'>
             <Text className='text-3xl text-accent'>{detectedCurrencySymbol}</Text>
@@ -155,14 +165,13 @@ const NewNote = () => {
           </View>}
         </View>
         <TextInput
-          value={content}
-          onChangeText={setContent}
+          ref={contentInputRef}
+          value={note.content}
+          onChangeText={(text) => setNote({...note, content: text})}
           className='text-2xl text-gray-600 mt-2 flex-1 px-5'
           style={{textAlignVertical: "top"}}
           multiline={true}
-          autoFocus={true}
           numberOfLines={1}
-          // selectionColor={Colors.dark.text}
         />
         <Pressable
           onPress={handleSaveNote}
