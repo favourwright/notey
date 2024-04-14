@@ -21,7 +21,7 @@ const NoteItem = ({ note, index }:Props) => {
       <View className='flex-row gap-4 py-5 h-32 border-t border-secondary/60'>
         <Text className='text-secondary/40 text-lg font-semibold'>{renderedIndex} /</Text>
         <View className='flex-1'>
-          <Text numberOfLines={1} className='text-4xl text-secondary'>{note.title}</Text>
+          <Text numberOfLines={1} className='text-4xl text-secondary'>{!!note.title.trim() ? note.title : 'untitled note'}</Text>
           <Text className='text-xl text-secondary/50 truncate'>{renderedContent}</Text>
         </View>
         <Feather name="arrow-up-right" size={24} color={Colors.dark.text} />

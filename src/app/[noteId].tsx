@@ -128,7 +128,6 @@ const NewNote = () => {
   const handleSaveNote = () => {
     saveNote({
       ...note,
-      title: !!note.title.trim() ? note.title : 'untitled note',
       updatedAt: new Date()
     })
     navigation.goBack()
