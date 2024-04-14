@@ -51,6 +51,7 @@ const NewNote = () => {
   const navigation = useNavigation()
   const params = useLocalSearchParams()
   const hasNoteId = params.noteId !== 'undefined'
+  const [storedNoteId, setStoredNoteId] = useState<string|undefined>(undefined)
   const { bottom } = useSafeAreaInsets()
 
   const [note, setNote] = useState<NoteType>({
@@ -86,16 +87,13 @@ const NewNote = () => {
         content: sampleGroceryList.join('\n'),
       })
       isDirty.current = true
+      // focus on content input if noteId is not available
+      setTimeout(()=>contentInputRef.current?.focus())
     }
-
-    // focus on content input if noteId is not available
-    if(!hasNoteId) contentInputRef.current?.focus()
   },[])
 
   // fetch note details if noteId is available
-  const isNoteStored = useRef<boolean>()
   useEffect(() => {
-    isNoteStored.current = false
     // get note details
     if (!hasNoteId) return
     (async () => {
@@ -106,7 +104,7 @@ const NewNote = () => {
         title: note.title,
         content: note.content,
       })
-      isNoteStored.current = true
+      setStoredNoteId(note.id)
     })()
   },[])
 
@@ -134,13 +132,19 @@ const NewNote = () => {
         </TouchableOpacity>
       ),
       headerRight: () => (
-        <TouchableOpacity activeOpacity={.8} onPress={hasNoteId ? handleDeleteNote : handleSaveNote}>
-          <Text className='text-2xl'>{!hasNoteId ? 'save' : 'delete'}</Text>
+        <TouchableOpacity
+          activeOpacity={.8}
+          onPress={
+            ()=>hasNoteId || storedNoteId ?
+              handleDeleteNote(storedNoteId!) :
+              handleSaveNote()
+          }>
+          <Text className='text-2xl'>{!hasNoteId && !storedNoteId  ? 'save' : 'delete'}</Text>
         </TouchableOpacity>
       ),
       headerShadowVisible: false,
     })
-  }, [navigation, note.title, note.content])
+  }, [navigation, note.title, note.content, storedNoteId])
 
   const isDirty = useRef<boolean>()
   const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
@@ -170,11 +174,11 @@ const NewNote = () => {
       content: note.content,
     })
     isDirty.current = false
-    isNoteStored.current = true
+    setStoredNoteId(note.id)
   }
-  const handleDeleteNote = async () => {
+  const handleDeleteNote = async (id:string) => {
     // delete note
-    await deleteNote(params.noteId as string)
+    await deleteNote(id)
     navigation.goBack()
   }
 
@@ -218,12 +222,10 @@ const NewNote = () => {
           style={{elevation: 5}}
           className={`absolute bottom-10 right-5 flex-row self-end justify-center items-center gap-2
           bg-accent mt-2 px-5 py-3 rounded-full shadow-lg shadow-primary/20`}>
-          {
-          !hasNoteId ?
-            <Entypo name="save" size={20} className='!text-black/70' /> :
-            <Entypo name="edit" size={20} className='!text-black/70' />
-          }
-          <Text className='text-2xl text-black/70'>{!hasNoteId ? 'save' : 'update'}</Text>
+          <Entypo name="save" size={20} className='!text-black/70' />
+          <Text className='text-2xl text-black/70'>
+            {!hasNoteId && !storedNoteId ? 'save' : 'update'}
+          </Text>
         </Pressable>}
       </View>
     </View>
