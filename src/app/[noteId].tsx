@@ -61,6 +61,11 @@ const NewNote = () => {
     createdAt: new Date(),
     updatedAt: new Date(),
   })
+  // used to track changes / dirtines of note
+  const [savedNoteState, setSavedNoteState] = useState<Partial<NoteType>>({
+    title: '',
+    content: '',
+  })
   const [detectedTotalCost, setDetectedTotalCost] = useState(0)
   const [detectedCurrencySymbol, setDetectedCurrencySymbol] = useState('#')
 
@@ -76,6 +81,11 @@ const NewNote = () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       })
+      setSavedNoteState({
+        title: 'Sample shopping List',
+        content: sampleGroceryList.join('\n'),
+      })
+      isDirty.current = true
     }
 
     // focus on content input if noteId is not available
@@ -83,16 +93,24 @@ const NewNote = () => {
   },[])
 
   // fetch note details if noteId is available
+  const isNoteStored = useRef<boolean>()
   useEffect(() => {
+    isNoteStored.current = false
     // get note details
     if (!hasNoteId) return
     (async () => {
       const note = await getNoteById(params.noteId as string || '')
       if (!note) return
       setNote(note)
+      setSavedNoteState({
+        title: note.title,
+        content: note.content,
+      })
+      isNoteStored.current = true
     })()
   },[])
 
+  // used to process sum calculations
   useEffect(()=>{
     // Process the grocery list string
     const processedList = processGroceryList(note.content);
@@ -124,13 +142,35 @@ const NewNote = () => {
     })
   }, [navigation, note.title, note.content])
 
+  const isDirty = useRef<boolean>()
+  const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
+    return oldValue !== newValue
+  }
+
+  const handleInputChange = ({field,value}:{field:'title'|'content',value:string}) => {
+    isDirty.current = false
+    if(field==='title') setNote({...note, title: value})
+    if(field==='content') setNote({...note, content: value})
+
+    // check dirtiness
+    isDirty.current = checkIfDirty({
+      oldValue: field==='title' ? savedNoteState.title : savedNoteState.content,
+      newValue: value
+    })
+  }
+
   // handle saving / updating note
   const handleSaveNote = () => {
     saveNote({
       ...note,
       updatedAt: new Date()
     })
-    navigation.goBack()
+    setSavedNoteState({
+      title: note.title,
+      content: note.content,
+    })
+    isDirty.current = false
+    isNoteStored.current = true
   }
   const handleDeleteNote = async () => {
     // delete note
@@ -153,7 +193,7 @@ const NewNote = () => {
         <View className='flex-row justify-between items-center mt-2 px-5'>
           <TextInput
             value={note.title}
-            onChangeText={(text) => setNote({...note, title: text})}
+            onChangeText={(value) => handleInputChange({field:'title', value})}
             className='text-3xl py-2 flex-1'
             placeholder='untitled Note'
           />
@@ -167,13 +207,13 @@ const NewNote = () => {
         <TextInput
           ref={contentInputRef}
           value={note.content}
-          onChangeText={(text) => setNote({...note, content: text})}
+          onChangeText={(value) => handleInputChange({field:'content', value})}
           className='text-2xl text-gray-600 mt-2 flex-1 px-5'
           style={{textAlignVertical: "top"}}
           multiline={true}
           numberOfLines={1}
         />
-        <Pressable
+        {isDirty.current && <Pressable
           onPress={handleSaveNote}
           style={{elevation: 5}}
           className={`absolute bottom-10 right-5 flex-row self-end justify-center items-center gap-2
@@ -184,7 +224,7 @@ const NewNote = () => {
             <Entypo name="edit" size={20} className='!text-black/70' />
           }
           <Text className='text-2xl text-black/70'>{!hasNoteId ? 'save' : 'update'}</Text>
-        </Pressable>
+        </Pressable>}
       </View>
     </View>
   )
