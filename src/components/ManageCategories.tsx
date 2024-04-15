@@ -4,6 +4,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetModalProvider,
+  BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
 
 const ManageCategories = ({isOpen:[openState,setOpenState]}:{isOpen:[boolean, (value:boolean)=>void]}) => {
@@ -15,6 +16,17 @@ const ManageCategories = ({isOpen:[openState,setOpenState]}:{isOpen:[boolean, (v
   const handleSheetChanges = useCallback((index: number) => {
     // console.log('handleSheetChanges', index);
   }, []);
+  const renderBackdrop = useCallback(
+		(props) => (
+			<BottomSheetBackdrop
+				{...props}
+        enableTouchThrough={false}
+        disappearsOnIndex={-1}
+        pressBehavior="close"
+			/>
+		),
+		[]
+	);
 
   useEffect(()=>{
     if(openState) handlePresentModalPress()
@@ -23,8 +35,9 @@ const ManageCategories = ({isOpen:[openState,setOpenState]}:{isOpen:[boolean, (v
   return (
     <BottomSheetModalProvider>
       <BottomSheetModal
+        backdropComponent={renderBackdrop}
         ref={bottomSheetModalRef}
-        index={0}
+        index={1}
         snapPoints={['30%', '50%']}
         onChange={handleSheetChanges}
         onDismiss={() => setOpenState(false)}
