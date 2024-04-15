@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from 'expo-router';
 import { View, Text, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -8,9 +8,12 @@ import { type NoteType, getAllNotes, clearAllNotes } from '@/store/notes';
 import Notelist from '@/components/note/Notelist';
 import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import ManageCategories from '@/components/ManageCategories';
 
 export default function Home() {
   const navigation = useNavigation();
+
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -52,7 +55,12 @@ export default function Home() {
         </View>
 
         <View className='bg-primary py-2'>
-          <FilterPills list={filterList} selected={selectedFilter} onChange={setSelectedFilter} />
+          <FilterPills
+            list={filterList}
+            selected={selectedFilter}
+            onChange={setSelectedFilter}
+            onAddBtnPress={()=>setIsCategoryModalOpen(true)}
+          />
         </View>
 
         <View className='mt-8 px-5 flex-1'>
@@ -69,6 +77,7 @@ export default function Home() {
           )}
         </View>
       </ScrollView>
+      <ManageCategories isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]} />
     </View>
   );
 }
