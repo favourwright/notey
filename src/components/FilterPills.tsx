@@ -8,20 +8,21 @@ import {
 } from 'react-native'
 import { useNavigation } from 'expo-router';
 import Entypo from '@expo/vector-icons/Entypo';
+import { type NoteCategoryType } from '@/store/categories';
 
 type Props = {
-  list: string[]
-  selected?: string
-  onChange: (filter: string) => void
+  list: NoteCategoryType[]
+  selected?: NoteCategoryType
+  onChange: (filter: NoteCategoryType) => void
   onAddBtnPress?: () => void
 }
 
 const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
   const filterRef = useRef<FlatList>(null)
-  const [activeFilter, setActiveFilter] = useState<string|null>(selected || null)
+  const [activeFilter, setActiveFilter] = useState<NoteCategoryType|null>(selected || null)
   const navigation = useNavigation()
   
-  const handleSelection = ({item, index}: {item: string, index: number}) => {
+  const handleSelection = ({item, index}: {item: NoteCategoryType, index: number}) => {
     filterRef.current?.scrollToIndex({index, animated: true})
     onChange(item)
     setActiveFilter(item)
@@ -48,21 +49,22 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
         ref={filterRef}
         horizontal
         data={list}
+        keyExtractor={item => item.id}
         renderItem={({ item, index }) => (
           <TouchableHighlight
             key={index}
             onPress={() => handleSelection({item, index})}
-            className={`${activeFilter === item ?
+            className={`${activeFilter?.id === item.id ?
               'bg-accent border-transparent' :
               'bg-transparent border-secondary'
             } ${isFirstItem(index) && 'ml-5'}
             rounded-full border`}>
             <Text
-              className={`${activeFilter === item ?
+              className={`${activeFilter?.id === item.id ?
                 'text-primary' :
                 'text-secondary'
               } text-2xl font-semibold p-3 px-5`}>
-              #{item}
+              #{item.name}
             </Text>
           </TouchableHighlight>
         )}

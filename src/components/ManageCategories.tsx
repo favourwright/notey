@@ -14,7 +14,13 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import uuid from 'react-native-uuid';
 
-const ManageCategories = ({isOpen:[openState,setOpenState]}:{isOpen:[boolean, (value:boolean)=>void]}) => {
+const ManageCategories = ({
+  isOpen:[openState,setOpenState],
+  onChange,
+}:{
+  isOpen:[boolean, (value:boolean)=>void],
+  onChange:(categories:NoteCategoryType[])=>void
+}) => {
   const { bottom } = useSafeAreaInsets()
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = useCallback(() => {
@@ -49,7 +55,11 @@ const ManageCategories = ({isOpen:[openState,setOpenState]}:{isOpen:[boolean, (v
     }
     try {
       await saveCategory(payload)
-      setRenderedCategories((prev)=>prev?.length ? [...prev, payload] : [payload])
+      setRenderedCategories((prev)=>{
+        const newCat = prev?.length ? [...prev, payload] : [payload]
+        onChange(newCat)
+        return newCat
+      })
       setNewCat('')
     } catch(err) {
       alert(err)
@@ -65,7 +75,11 @@ const ManageCategories = ({isOpen:[openState,setOpenState]}:{isOpen:[boolean, (v
       {text: 'OK', onPress: async () => {
         await deleteCategory(id)
         // remove category from rendered categories
-        setRenderedCategories((prev)=>prev.filter((cat)=>cat.id!==id))
+        setRenderedCategories((prev)=>{
+          const newCat = prev.filter((cat)=>cat.id!==id)
+          onChange(newCat)
+          return newCat
+        })
       }},
     ]);
   }

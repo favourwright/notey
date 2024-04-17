@@ -9,6 +9,7 @@ import Notelist from '@/components/note/Notelist';
 import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ManageCategories from '@/components/ManageCategories';
+import { getAllCategories, NoteCategoryType } from '@/store/categories';
 
 export default function Home() {
   const navigation = useNavigation();
@@ -22,25 +23,23 @@ export default function Home() {
   }, [navigation]);
 
   const [notes, setNotes] = useState<NoteType[]>([])
-  useFocusEffect(() => {
-    (async ()=>{
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
       const notes = await getAllNotes()
       setNotes(notes)
-    })()
-    // clearAllNotes()
-  })
+
+      // for categories
+      const cats = await getAllCategories()
+      setCatList(cats)
+    });
+  
+    return unsubscribe; // Cleanup function
+  }, [navigation.isFocused]); // Dependency array
 
 
-  const [selectedFilter, setSelectedFilter] = useState<string|null>('lists')
-  const [filterList, setFilterList] = useState([
-    'personal',
-    'work',
-    'grocery',
-    'study',
-    'books',
-    'articles',
-    'lists',
-  ])
+  const [selectedFilter, setSelectedFilter] = useState<NoteCategoryType|null>(null)
+  const [catList, setCatList] = useState<NoteCategoryType[]>([])
 
   return (
     <View className="flex-1 bg-primary">
@@ -56,7 +55,7 @@ export default function Home() {
 
         <View className='bg-primary py-2'>
           <FilterPills
-            list={filterList}
+            list={catList}
             selected={selectedFilter}
             onChange={setSelectedFilter}
             onAddBtnPress={()=>setIsCategoryModalOpen(true)}
@@ -77,7 +76,10 @@ export default function Home() {
           )}
         </View>
       </ScrollView>
-      <ManageCategories isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]} />
+      <ManageCategories
+        onChange={setCatList}
+        isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]}
+      />
     </View>
   );
 }
