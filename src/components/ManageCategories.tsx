@@ -178,8 +178,8 @@ const CategoryItem = ({
 }) => {
   return (
     <View
-      className={`flex-row py-2 gap-4 items-center
-      ${isHighlighted && mode === CategoryActionModes.SELECT && 'bg-black/5 px-2 border border-black'}
+      className={`flex-row py-2 gap-4 items-center border-y
+      ${isHighlighted && mode === CategoryActionModes.SELECT ? 'bg-black/5 border-black rounded' : 'border-transparent'}
     `}>
       {mode === CategoryActionModes.EDIT && <Pressable
         onPress={()=>handleDeleteCategory(category.id)}
