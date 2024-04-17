@@ -4,11 +4,12 @@ const STORE_KEY = '@notes-app-x/categories'
 export type NoteCategoryType = {
   id: string,
   name: string,
+  isDefault?:boolean
 }
 export const saveCategory = async (payload:NoteCategoryType) => {
   try {
     const previousCategories = await getAllCategories()
-    const newCategories = [...previousCategories, payload]
+    const newCategories = previousCategories?.length ? [...previousCategories, payload] : [payload]
     await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newCategories))
   } catch (e) {
     console.log({SaveCategoryError: e})
@@ -18,7 +19,7 @@ export const saveCategory = async (payload:NoteCategoryType) => {
 export const getAllCategories = async () => {
   try {
     const value = await AsyncStorage.getItem(STORE_KEY);
-    if (value !== null) return []
+    if (value === null) return []
     return JSON.parse(value) as NoteCategoryType[]
   } catch (e) {
     console.log({GetAllCategoriesError: e})
@@ -33,5 +34,15 @@ export const getCategoryById = async (categoryId:string) => {
     return categories.find(category => category.id === categoryId)
   } catch (e) {
     console.log({GetCategoryByIdError: e})
+  }
+}
+
+export const deleteCategory = async (categoryId:string) => {
+  try {
+    const previousCategories = await getAllCategories()
+    const newCategories = previousCategories.filter(category => category.id !== categoryId)
+    await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newCategories))
+  } catch (e) {
+    console.log({DeleteCategoryError: e})
   }
 }
