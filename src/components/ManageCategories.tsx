@@ -107,7 +107,7 @@ const ManageCategories = ({
               value={newCat}
               onChangeText={setNewCat}
               onSubmitEditing={handleCreateCategory}
-              placeholder='grocery'
+              placeholder='add new category'
               className='self-stretch bg-black/80 p-4 text-lg leading-[18px]
               text-white placeholder:text-white/50 rounded-3xl'
             />
