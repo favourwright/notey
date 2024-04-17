@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
@@ -177,9 +177,18 @@ const NewNote = () => {
     setStoredNoteId(note.id)
   }
   const handleDeleteNote = async (id:string) => {
-    // delete note
-    await deleteNote(id)
-    navigation.goBack()
+    Alert.alert('Confirm note delete', null, [
+      {
+        text: 'Cancel',
+        onPress: () => {},
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: async () => {
+        // delete note
+        await deleteNote(id)
+        navigation.goBack()
+      }},
+    ]);
   }
 
   return (
