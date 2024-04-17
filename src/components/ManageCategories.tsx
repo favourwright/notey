@@ -174,7 +174,10 @@ const CategoryItem = ({
   handleSelect?: (cat:NoteCategoryType) => void
 }) => {
   return (
-    <View className={`flex-row py-2 gap-4 items-center ${isHighlighted && 'bg-black/5 px-2 border border-black'}`}>
+    <View
+      className={`flex-row py-2 gap-4 items-center
+      ${isHighlighted && mode === CategoryActionModes.SELECT && 'bg-black/5 px-2 border border-black'}
+    `}>
       {mode === CategoryActionModes.EDIT && <Pressable
         onPress={()=>handleDeleteCategory(category.id)}
         disabled={category?.isDefault}>
