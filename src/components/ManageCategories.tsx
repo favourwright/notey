@@ -5,6 +5,7 @@ import {
   BottomSheetView,
   BottomSheetModalProvider,
   BottomSheetBackdrop,
+  BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 import { TextInput } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,6 +30,7 @@ const ManageCategories = ({
 }) => {
   const { bottom } = useSafeAreaInsets()
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const snapPoints = useMemo(() => ['30%', '50%'], []);
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
@@ -106,13 +108,14 @@ const ManageCategories = ({
         backdropComponent={renderBackdrop}
         ref={bottomSheetModalRef}
         index={0}
-        snapPoints={['30%', '50%']}
+        snapPoints={snapPoints}
         onChange={handleSheetChanges}
+        keyboardBehavior="interactive"
         onDismiss={() => setOpenState(false)}
       >
         <BottomSheetView className='flex-1 px-5'>
           <View style={{paddingBottom:bottom}} className='flex-1'>
-            {activeMode === CategoryActionModes.EDIT && <TextInput
+            {activeMode === CategoryActionModes.EDIT && <BottomSheetTextInput
               value={newCat}
               onChangeText={setNewCat}
               onSubmitEditing={handleCreateCategory}

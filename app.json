@@ -23,7 +23,8 @@
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#FDFCDD"
       },
-      "package": "com.favourwright.notesappx"
+      "package": "com.favourwright.notesappx",
+      "softwareKeyboardLayoutMode":"pan"
     },
     "plugins": [
       [
