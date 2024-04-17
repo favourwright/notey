@@ -11,6 +11,8 @@ import Colors from '@/constants/Colors';
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
 import uuid from 'react-native-uuid';
+import ManageCategories from '@/components/ManageCategories';
+import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
 
 // Regular expressions
 const quantityPattern = /[x|X|*](\d+)/;
@@ -62,6 +64,9 @@ const NewNote = () => {
     createdAt: new Date(),
     updatedAt: new Date(),
   })
+  const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+
   // used to track changes / dirtines of note
   const [savedNoteState, setSavedNoteState] = useState<Partial<NoteType>>({
     title: '',
@@ -86,7 +91,14 @@ const NewNote = () => {
         title: 'Sample shopping List',
         content: sampleGroceryList.join('\n'),
       })
-      isDirty.current = true
+      isDirty.current = true;
+
+      (async ()=>{
+        // for categories
+        const cats = await getAllCategories()
+        if(cats.length) setSelectedcategory(cats[0])
+      })()
+
       // focus on content input if noteId is not available
       setTimeout(()=>contentInputRef.current?.focus())
     }
@@ -105,6 +117,7 @@ const NewNote = () => {
         content: note.content,
       })
       setStoredNoteId(note.id)
+      setSelectedcategory(note.category)
     })()
   },[])
 
@@ -190,6 +203,11 @@ const NewNote = () => {
       }},
     ]);
   }
+  const handleCategoryUpdate = (cat:NoteCategoryType)=>{
+    setSelectedcategory(cat);
+    setNote({...note, categoryId: cat.id})
+    isDirty.current = true
+  }
 
   return (
     <View className='flex-1 bg-white'>
@@ -201,7 +219,11 @@ const NewNote = () => {
           <Text className='text-gray-400'>
             {format(note.updatedAt, "dd / MM / yy")}
           </Text>
-          <Text className='text-gray-400'>#{note.category?.name || 'grocery'}</Text>
+          <Text
+            onPress={()=>setIsCategoryModalOpen(true)}
+            className='text-gray-400'>
+            #{selectedCategory?.name || 'grocery'}
+          </Text>
         </View>
         <View className='flex-row justify-between items-center mt-2 px-5'>
           <TextInput
@@ -237,6 +259,12 @@ const NewNote = () => {
           </Text>
         </Pressable>}
       </View>
+      <ManageCategories
+        mode={CategoryActionModes.SELECT}
+        onCategorySelect={handleCategoryUpdate}
+        activeCategory={selectedCategory}
+        isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]}
+      />
     </View>
   )
 }

@@ -9,7 +9,7 @@ import Notelist from '@/components/note/Notelist';
 import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ManageCategories from '@/components/ManageCategories';
-import { getAllCategories, NoteCategoryType } from '@/store/categories';
+import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
 
 export default function Home() {
   const navigation = useNavigation();
@@ -38,7 +38,7 @@ export default function Home() {
   }, [navigation.isFocused]); // Dependency array
 
 
-  const [selectedFilter, setSelectedFilter] = useState<NoteCategoryType|null>(null)
+  const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
   const [catList, setCatList] = useState<NoteCategoryType[]>([])
 
   return (
@@ -56,8 +56,8 @@ export default function Home() {
         <View className='bg-primary py-2'>
           <FilterPills
             list={catList}
-            selected={selectedFilter}
-            onChange={setSelectedFilter}
+            selected={selectedCategory}
+            onChange={setSelectedcategory}
             onAddBtnPress={()=>setIsCategoryModalOpen(true)}
           />
         </View>
@@ -77,6 +77,7 @@ export default function Home() {
         </View>
       </ScrollView>
       <ManageCategories
+        mode={CategoryActionModes.EDIT}
         onChange={setCatList}
         isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]}
       />

@@ -6,6 +6,10 @@ export type NoteCategoryType = {
   name: string,
   isDefault?:boolean
 }
+export enum CategoryActionModes {
+  EDIT = 'edit',
+  SELECT = 'select'
+}
 export const saveCategory = async (payload:NoteCategoryType) => {
   try {
     const previousCategories = await getAllCategories()
