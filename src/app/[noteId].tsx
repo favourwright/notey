@@ -252,7 +252,7 @@ const NewNote = () => {
             placeholder='untitled Note'
           />
           {!!detectedTotalCost && <Pressable
-            onPress={handleCopyTotalCost}
+            onLongPress={handleCopyTotalCost}
             className='pl-2 flex-row items-center'>
             <Text className='text-3xl text-accent'>{detectedCurrencySymbol}</Text>
             <Text className='text-3xl'>
