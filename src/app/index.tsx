@@ -7,6 +7,7 @@ import FilterPills from '@/components/FilterPills';
 import { type NoteType, getAllNotes, clearAllNotes } from '@/store/notes';
 import Notelist from '@/components/note/Notelist';
 import Entypo from '@expo/vector-icons/Entypo';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ManageCategories from '@/components/ManageCategories';
 import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
@@ -24,6 +25,10 @@ export default function Home() {
   }, [navigation]);
 
   const [notes, setNotes] = useState<NoteType[]>([])
+  const renderedNotes = (noteCategory: NoteCategoryType|null) => {
+    if(!noteCategory) return notes
+    return notes.filter(note => note.categoryId === noteCategory.id)
+  }
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
@@ -68,15 +73,19 @@ export default function Home() {
         </View>
 
         <View className='mt-8 px-5 flex-1'>
-          <Notelist notes={notes} />
+          <Notelist notes={renderedNotes(selectedCategory)} />
 
           {/* emoty state UI */}
-          {notes.length === 0 && (
-            <View className='flex-1 justify-center items-center my-10 gap-10 mx-auto max-w-xs'>
-              <Entypo name='flower' size={80} className='!text-white/10' />
+          {renderedNotes(selectedCategory).length === 0 && (
+            <View className='flex-1 justify-center items-center my-10 gap-10 mx-auto max-w-xs px-5'>
+              {!selectedCategory && <><Entypo name='flower' size={80} className='!text-white/10' />
               <Text className='text-2xl text-white/20 text-center'>
                 click the <AntDesign name='pluscircle' size={20} className='!text-white/20' /> button to add a new note
-              </Text>
+              </Text></>}
+              {selectedCategory && <><MaterialCommunityIcons name='spider-web' size={80} className='!text-white/10' />
+              <Text className='text-2xl text-white/20 text-center'>
+                there are no notes in the category <Text className='text-white/40'>{selectedCategory.name}</Text>
+              </Text></>}
             </View>
           )}
         </View>

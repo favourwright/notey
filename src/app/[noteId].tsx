@@ -85,7 +85,7 @@ const NewNote = () => {
         id: uuid.v4() as string,
         title: 'Sample shopping List',
         content: sampleGroceryList.join('\n'),
-        categoryId: 'grocery',
+        categoryId: '', // will be updated later
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -99,6 +99,7 @@ const NewNote = () => {
         // for categories
         const cats = await getAllCategories()
         if(cats.length) setSelectedcategory(cats[0])
+        setNote((prev)=>({...prev, categoryId: cats[0].id}))
       })()
 
       // focus on content input if noteId is not available
@@ -241,7 +242,7 @@ const NewNote = () => {
           <Text
             onPress={()=>setIsCategoryModalOpen(true)}
             className='text-gray-400'>
-            #{selectedCategory?.name || 'grocery'}
+            #{selectedCategory?.name || '<uncategorized>'}
           </Text>
         </View>
         <View className='flex-row justify-between items-center mt-2 px-5'>

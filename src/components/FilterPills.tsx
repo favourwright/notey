@@ -23,6 +23,15 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
   const navigation = useNavigation()
   
   const handleSelection = ({item, index}: {item: NoteCategoryType, index: number}) => {
+    // check if the item is already selected
+    // if it is, deselect it
+    if(activeFilter?.id === item.id) {
+      setActiveFilter(null)
+      onChange(null)
+      navigation.setParams({ active_category: null  } as undefined);
+      return
+    }
+
     filterRef.current?.scrollToIndex({index, animated: true})
     onChange(item)
     setActiveFilter(item)
