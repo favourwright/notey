@@ -260,15 +260,19 @@ const NewNote = () => {
             </Text>
           </Pressable>}
         </View>
-        <TextInput
-          ref={contentInputRef}
-          value={note.content}
-          onChangeText={(value) => handleInputChange({field:'content', value})}
-          className='text-2xl text-gray-600 mt-2 flex-1 px-5'
-          style={{textAlignVertical: "top"}}
-          multiline={true}
-          numberOfLines={1}
-        />
+
+        <ScrollView className='flex-1'>
+          <TextInput
+            ref={contentInputRef}
+            value={note.content}
+            onChangeText={(value) => handleInputChange({field:'content', value})}
+            className='text-2xl text-gray-600 mt-2 flex-1 px-5'
+            style={{textAlignVertical: "top",paddingBottom:bottom}}
+            multiline={true}
+            numberOfLines={1}
+          />
+        </ScrollView>
+
         {isDirty.current && <Pressable
           onPress={handleSaveNote}
           style={{elevation: 5}}
