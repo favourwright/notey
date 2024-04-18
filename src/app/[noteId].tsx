@@ -145,15 +145,17 @@ const NewNote = () => {
         </TouchableOpacity>
       ),
       headerRight: () => (
-        <TouchableOpacity
-          activeOpacity={.8}
-          onPress={
-            ()=>hasNoteId || storedNoteId ?
-              handleDeleteNote(storedNoteId!) :
-              handleSaveNote()
-          }>
-          <Text className='text-2xl'>{!hasNoteId && !storedNoteId  ? 'save' : 'delete'}</Text>
-        </TouchableOpacity>
+        <View className='w-28 flex-row justify-end'>
+          <TouchableOpacity
+            activeOpacity={.8}
+            onPress={
+              ()=>hasNoteId || storedNoteId ?
+                handleDeleteNote(storedNoteId!) :
+                handleSaveNote()
+            }>
+            <Text className='text-2xl'>{!hasNoteId && !storedNoteId  ? 'save' : 'delete'}</Text>
+          </TouchableOpacity>
+        </View>
       ),
       headerShadowVisible: false,
     })

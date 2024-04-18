@@ -136,7 +136,7 @@ const ManageCategories = ({
                     )
                   }
                   className='mt-3 text-lg font-medium'>
-                  {activeMode===CategoryActionModes.SELECT ? 'edit' : 'save'}
+                  {activeMode===CategoryActionModes.SELECT ? 'edit' : 'done'}
                 </Text>
               )}
             </View>
