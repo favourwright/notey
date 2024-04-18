@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Alert } from 'react-native';
+import { View, Text, Pressable, Alert } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -7,7 +8,6 @@ import {
   BottomSheetBackdrop,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import { TextInput } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CategoryActionModes, deleteCategory, getAllCategories, NoteCategoryType, saveCategory } from '@/store/categories';
 import Seperator from './Seperator';
@@ -64,7 +64,7 @@ const ManageCategories = ({
     try {
       await saveCategory(payload)
       setRenderedCategories((prev)=>{
-        const newCat = prev?.length ? [...prev, payload] : [payload]
+        const newCat = prev?.length ? [payload, ...prev] : [payload]
         onChange && onChange(newCat)
         return newCat
       })
@@ -120,7 +120,7 @@ const ManageCategories = ({
               onChangeText={setNewCat}
               onSubmitEditing={handleCreateCategory}
               placeholder='add new category'
-              className='self-stretch bg-black/80 p-4 text-lg leading-[18px]
+              className='self-stretch bg-black/80 p-4 py-3 text-lg leading-[18px]
               text-white placeholder:text-white/50 rounded-3xl'
             />}
             <View className='flex-row justify-between'>
@@ -139,9 +139,11 @@ const ManageCategories = ({
                 </Text>
               )}
             </View>
+
             <FlatList
-              className='mt-2'
+              className='flex-1 mt-2'
               data={renderedCategories}
+              scrollEnabled={true}
               keyExtractor={(item)=>item.id}
               renderItem={({ item, index }) => (
                 <CategoryItem
