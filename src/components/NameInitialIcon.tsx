@@ -6,9 +6,9 @@ type Props = {
 const NameIcon = ({initials}:Props) => {
   return (
     <View
-      className='h-10 aspect-square rounded-full bg-accent/20
-      items-center justify-center border-2 border-accent/20'>
-      <Text className='text-accent text-3xl font-black'>{initials}</Text>
+      className='h-10 aspect-square rounded-full bg-light-gray/20
+      items-center justify-center border-2 border-light-gray/20'>
+      <Text className='text-light-gray text-3xl font-black'>{initials}</Text>
     </View>
   )
 }
