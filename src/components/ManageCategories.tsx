@@ -57,6 +57,7 @@ const ManageCategories = ({
   const [renderedCategories, setRenderedCategories] = useState<NoteCategoryType[]>([])
   const handleCreateCategory = async ()=>{
     const sanitized = newCat.replace(/[^a-zA-Z\s]/g, '') // remove all characters except alphabets and spaces
+    if(!sanitized?.trim()) return setNewCat('')
     const payload: NoteCategoryType = {
       id: uuid.v4() as string,
       name: sanitized,
