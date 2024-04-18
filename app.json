@@ -9,11 +9,7 @@
       "favicon": "./src/assets/images/favicon.png"
     },
     "icon": "./src/assets/images/icon.png",
-    "splash": {
-      "image": "./src/assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FDFCDD"
-    },
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.favourwright.notesappx"
