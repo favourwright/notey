@@ -6,6 +6,8 @@ import {
   View,
 } from "react-native";
 import LottieView from 'lottie-react-native';
+import { useRouter } from 'expo-router';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -25,6 +27,7 @@ function AnimatedSplashScreen({ children }) {
   const [isAppReady, setAppReady] = useState(false);
   const [isLottieAnimComplete, setLottieAnimComplete] = useState(false);
   const [isSplashAnimationComplete, setAnimationComplete] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (isAppReady && isLottieAnimComplete) {
@@ -36,7 +39,7 @@ function AnimatedSplashScreen({ children }) {
     }
   }, [isAppReady, isLottieAnimComplete]);
 
-  const onImageLoaded = useCallback(async () => {
+  const onSplashScreenAssetsLoaded = useCallback(async () => {
     try {
       await SplashScreen.hideAsync();
       // Load stuff absolutely necessary for app to function
@@ -49,11 +52,26 @@ function AnimatedSplashScreen({ children }) {
   }, []);
   
   useEffect(()=>{
-    onImageLoaded()
+    onSplashScreenAssetsLoaded()
   }, [])
+
+  const checkOnboarding = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@notes-app-x/onboardingViewed');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if(value !== null) {
+        return true
+      }
+      return false
+    } catch(e) {
+      console.log({'onboarding error': e});
+    }
+  }
 
   const handleEndSplashAnim = useCallback(async () => {
     // check if onboarding is complete else, start onboarding
+    const check = await checkOnboarding()
+    if(!check) router.replace('/onboarding')
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setLottieAnimComplete(true);
   }, []);

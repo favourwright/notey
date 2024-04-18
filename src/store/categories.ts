@@ -50,3 +50,11 @@ export const deleteCategory = async (categoryId:string) => {
     console.log({DeleteCategoryError: e})
   }
 }
+
+export const clearAllCategories = async () => {
+  try {
+    await AsyncStorage.removeItem(STORE_KEY)
+  } catch (e) {
+    console.log({ClearAllCategoriesError: e})
+  }
+}

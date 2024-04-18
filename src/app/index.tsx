@@ -10,6 +10,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ManageCategories from '@/components/ManageCategories';
 import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home() {
   const navigation = useNavigation();
@@ -41,13 +42,17 @@ export default function Home() {
   const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
   const [catList, setCatList] = useState<NoteCategoryType[]>([])
 
+  const resetOnboarding = () => {
+    AsyncStorage.removeItem('@notes-app-x/onboardingViewed')
+  }
+
   return (
     <View className="flex-1 bg-primary">
       <StatusBar style="light" />
       <ScrollView className="flex-1" stickyHeaderIndices={[1]}>
         <View className='px-5 mt-10 flex-row items-end mb-8'>
           <View className='flex-grow gap-4'>
-            <Text className='text-6xl text-secondary font-medium'>Your</Text>
+            <Text onPress={resetOnboarding} className='text-6xl text-secondary font-medium'>Your</Text>
             <Text className='text-6xl text-secondary font-medium pl-10'>notes</Text>
           </View>
           <Text className='text-6xl text-secondary/20 font-medium'>/{notes.length}</Text>
