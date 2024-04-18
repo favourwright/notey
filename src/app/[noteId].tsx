@@ -12,6 +12,8 @@ import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
 import uuid from 'react-native-uuid';
 import ManageCategories from '@/components/ManageCategories';
+import Toast from 'react-native-root-toast';
+import * as Clipboard from 'expo-clipboard';
 import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
 
 // Regular expressions
@@ -211,6 +213,21 @@ const NewNote = () => {
     isDirty.current = true
   }
 
+  const handleCopyTotalCost = async () =>{
+    await Clipboard.setStringAsync(detectedTotalCost.toLocaleString());
+    
+    Toast.show('Cost Copied', {
+      duration: Toast.durations.SHORT,
+      backgroundColor: '#C9C9C9',
+      shadow: false,
+      textColor: 'black',
+      containerStyle: {
+        borderRadius: 14,
+        padding: 10,
+      }
+    });
+  }
+
   return (
     <View className='flex-1 bg-white'>
       <StatusBar style='dark' backgroundColor='white' />
@@ -234,12 +251,14 @@ const NewNote = () => {
             className='text-3xl py-2 flex-1'
             placeholder='untitled Note'
           />
-          {!!detectedTotalCost && <View className='pl-2 flex-row items-center'>
+          {!!detectedTotalCost && <Pressable
+            onPress={handleCopyTotalCost}
+            className='pl-2 flex-row items-center'>
             <Text className='text-3xl text-accent'>{detectedCurrencySymbol}</Text>
             <Text className='text-3xl'>
               {detectedTotalCost.toLocaleString()}
             </Text>
-          </View>}
+          </Pressable>}
         </View>
         <TextInput
           ref={contentInputRef}
