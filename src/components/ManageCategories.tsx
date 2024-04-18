@@ -70,6 +70,9 @@ const ManageCategories = ({
         return newCat
       })
       setNewCat('')
+      // doing this because the bottomsheet doesn't shrink back down
+      // even when keyboard is dismissed
+      bottomSheetModalRef.current?.snapToIndex(1)
     } catch(err) {
       alert(err)
     }
