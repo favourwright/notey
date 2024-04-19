@@ -15,6 +15,9 @@ export type NoteType = {
 
 // sample grocery list
 export const sampleTemplate: string[] = [
+  "Note: few symbols like the ones below can be used to represent currency (for price tracking).",
+  "The first symbol found in the list will be used as the currency symbol above.",
+  "",
   "Meat 🍖 - ₦3,000",
   "- Vegetables 🥦 - #500",
   "● Cucumber 🥒 - $1,000",
