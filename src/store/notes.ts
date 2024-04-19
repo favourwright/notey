@@ -16,9 +16,9 @@ export type NoteType = {
 // sample grocery list
 export const sampleTemplate: string[] = [
   "Meat 🍖 - ₦3,000",
-  "- Vegetables 🥦 - ₦500",
-  "● Cucumber 🥒 - ₦1,000",
-  "Beans x4 - ₦400",
+  "- Vegetables 🥦 - #500",
+  "● Cucumber 🥒 - $1,000",
+  "Beans x4 - N400",
   "Eggs 🥚 ₦3,600",
   "Garri ₦1000",
   "- Onions 🧅 - ₦900",
