@@ -8,6 +8,7 @@ import {
 import LottieView from 'lottie-react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFonts, CoveredByYourGrace_400Regular } from '@expo-google-fonts/covered-by-your-grace';
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -39,17 +40,28 @@ function AnimatedSplashScreen({ children }) {
     }
   }, [isAppReady, isLottieAnimComplete]);
 
+  let [fontsLoaded] = useFonts({
+    CoveredByYourGrace_400Regular,
+  });
+
   const onSplashScreenAssetsLoaded = useCallback(async () => {
     try {
       await SplashScreen.hideAsync();
       // Load stuff absolutely necessary for app to function
-      await Promise.all([]);
+      // await Promise.all([]);
     } catch (e) {
       // handle errors
     } finally {
+      if(fontsLoaded) setAppReady(true);
+    }
+  }, [fontsLoaded]);
+
+  // use this to make sure font is ready before setting appReady
+  useEffect(()=>{
+    if(fontsLoaded) {
       setAppReady(true);
     }
-  }, []);
+  },[fontsLoaded])
   
   useEffect(()=>{
     onSplashScreenAssetsLoaded()
