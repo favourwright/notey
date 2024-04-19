@@ -35,8 +35,16 @@ const NameNGreeting = ({name}:Props) => {
       <NameInitialIcon initials={initial} />
 
       <View className='flex-row gap-1'>
-        <Text className='text-secondary/50 text-xl'>{greeting},</Text>
-        <Text className='text-secondary text-xl'>{name}</Text>
+        <Text
+          style={{fontFamily: 'CoveredByYourGrace_400Regular'}}
+          className='text-secondary/50 text-2xl'>
+          {greeting},
+        </Text>
+        <Text
+          style={{fontFamily: 'CoveredByYourGrace_400Regular'}}
+          className='text-secondary text-2xl'>
+          {name}
+        </Text>
       </View>
     </View>
   )
