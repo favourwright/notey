@@ -42,13 +42,13 @@ export const useNumberFromMixedString = (string: string)=> {
 }
 
 const sampleGroceryList = [
-  "Meat 🍖 - #3,000",
-  "- Vegetables 🥦 - #500",
-  "● Cucumber 🥒 - $1,000",
-  "Beans x4 - #400",
-  "Eggs 🥚 #3,600",
-  "Garri #1000",
-  "- Onions 🧅 - #900",
+  "Meat 🍖 - ₦3,000",
+  "- Vegetables 🥦 - ₦500",
+  "● Cucumber 🥒 - ₦1,000",
+  "Beans x4 - ₦400",
+  "Eggs 🥚 ₦3,600",
+  "Garri ₦1000",
+  "- Onions 🧅 - ₦900",
 ]
 
 const NewNote = () => {
