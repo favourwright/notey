@@ -12,6 +12,18 @@ export type NoteType = {
   updatedAt: Date,
   // consider a sorting key
 }
+
+// sample grocery list
+export const sampleTemplate: string[] = [
+  "Meat 🍖 - ₦3,000",
+  "- Vegetables 🥦 - ₦500",
+  "● Cucumber 🥒 - ₦1,000",
+  "Beans x4 - ₦400",
+  "Eggs 🥚 ₦3,600",
+  "Garri ₦1000",
+  "- Onions 🧅 - ₦900",
+]
+
 export const saveNote = async (payload:NoteType) => {
   try {
     const previousNotes = await getAllNotes()
@@ -68,3 +80,23 @@ export const deleteNote = async (noteId:string) => {
     console.log({DeleteNoteError: e})
   }
 }
+
+// Regular expressions
+export const quantityPattern = /[x|X|*](\d+)/;
+export const pricePattern = /([$#€¥£₽\₩N₦])(\d+)([,]?(\d+)?(\.\d+|\$\d+)?)*/; // Separated pattern for price
+export const itemRegex = /(○|-)? (.+) - \$([0-9]+(\.[0-9]+)?)?/g;
+
+// Function to process the grocery list string
+export const priceAndQuantityExtractor = (groceryListString:string) => {
+  // Split the string into a list by newlines
+  const groceryList = groceryListString?.split("\n");
+
+  // Process each item to extract data
+  return (groceryList || []).map((item) => {
+    const itemName = item.replace(itemRegex, "$1"); // Extract item name
+    const quantityMatch = item.match(quantityPattern);
+    const quantity = quantityMatch ? parseInt(quantityMatch[1]) : 1;
+    const numbers = item.match(pricePattern) || [0]; // Match only price pattern
+    return { itemName, quantity, price: numbers[0] };
+  });
+};

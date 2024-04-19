@@ -15,41 +15,16 @@ import ManageCategories from '@/components/ManageCategories';
 import Toast from 'react-native-root-toast';
 import * as Clipboard from 'expo-clipboard';
 import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
-
-// Regular expressions
-const quantityPattern = /[x|X|*](\d+)/;
-const pricePattern = /([$#€¥£₽\₩N₦])(\d+)([,]?(\d+)?(\.\d+|\$\d+)?)*/; // Separated pattern for price
-const itemRegex = /(○|-)? (.+) - \$([0-9]+(\.[0-9]+)?)?/g;
-
-// Function to process the grocery list string
-const processGroceryList = (groceryListString:string) => {
-  // Split the string into a list by newlines
-  const groceryList = groceryListString?.split("\n");
-
-  // Process each item to extract data
-  return (groceryList || []).map((item) => {
-    const itemName = item.replace(itemRegex, "$1"); // Extract item name
-    const quantityMatch = item.match(quantityPattern);
-    const quantity = quantityMatch ? parseInt(quantityMatch[1]) : 1;
-    const numbers = item.match(pricePattern) || [0]; // Match only price pattern
-    return { itemName, quantity, price: numbers[0] };
-  });
-};
+import {
+  sampleTemplate as sampleGroceryList,
+  priceAndQuantityExtractor,
+  pricePattern,
+} from '@/store/notes';
 
 // used to extract number from mixed string
 export const useNumberFromMixedString = (string: string)=> {
   return Number(string.replace(/[^0-9.-]+/g, ''))
 }
-
-const sampleGroceryList = [
-  "Meat 🍖 - ₦3,000",
-  "- Vegetables 🥦 - ₦500",
-  "● Cucumber 🥒 - ₦1,000",
-  "Beans x4 - ₦400",
-  "Eggs 🥚 ₦3,600",
-  "Garri ₦1000",
-  "- Onions 🧅 - ₦900",
-]
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -127,7 +102,7 @@ const NewNote = () => {
   // used to process sum calculations
   useEffect(()=>{
     // Process the grocery list string
-    const processedList = processGroceryList(note.content);
+    const processedList = priceAndQuantityExtractor(note.content);
     const eachItemCost = processedList.map((item) => {
       return useNumberFromMixedString((item.price as string) || '') * item.quantity
     }).filter(Boolean)
