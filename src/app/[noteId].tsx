@@ -4,7 +4,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { format } from "date-fns";
-import { getNoteById, saveNote, deleteNote, type NoteType } from '@/store/notes';
+import {
+  getNoteById,
+  saveNote,
+  deleteNote,
+  type NoteType,
+  processNoteContent,
+  sampleTemplate as sampleGroceryList
+} from '@/store/notes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Seperator from '@/components/Seperator';
 import Colors from '@/constants/Colors';
@@ -15,16 +22,6 @@ import ManageCategories from '@/components/ManageCategories';
 import Toast from 'react-native-root-toast';
 import * as Clipboard from 'expo-clipboard';
 import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
-import {
-  sampleTemplate as sampleGroceryList,
-  priceAndQuantityExtractor,
-  pricePattern,
-} from '@/store/notes';
-
-// used to extract number from mixed string
-export const useNumberFromMixedString = (string: string)=> {
-  return Number(string.replace(/[^0-9.-]+/g, ''))
-}
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -101,17 +98,9 @@ const NewNote = () => {
 
   // used to process sum calculations
   useEffect(()=>{
-    // Process the grocery list string
-    const processedList = priceAndQuantityExtractor(note.content);
-    const eachItemCost = processedList.map((item) => {
-      return useNumberFromMixedString((item.price as string) || '') * item.quantity
-    }).filter(Boolean)
-    const totalCost = eachItemCost.reduce((a, b) => a + b, 0)
+    const { totalCost, currencySymbol } = processNoteContent(note.content)
     setDetectedTotalCost(totalCost)
-    // get currency symbol
-    if (!note.content) return
-    const currencySymbol = note.content.match(pricePattern)?.[0].charAt(0)
-    setDetectedCurrencySymbol(currencySymbol || '#')
+    setDetectedCurrencySymbol(currencySymbol)
   }, [note.content])
   
   useLayoutEffect(() => {

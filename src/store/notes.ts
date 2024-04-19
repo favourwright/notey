@@ -100,3 +100,27 @@ export const priceAndQuantityExtractor = (groceryListString:string) => {
     return { itemName, quantity, price: numbers[0] };
   });
 };
+
+// used to extract number from mixed string
+export const useNumberFromMixedString = (string: string)=> {
+  return Number(string.replace(/[^0-9.-]+/g, ''))
+}
+
+export const processNoteContent = (content:string) => {
+  // Process the grocery list string
+  const data = {
+    totalCost: 0,
+    currencySymbol: '#',
+  }
+  const processedList = priceAndQuantityExtractor(content);
+  const eachItemCost = processedList.map((item) => {
+    return useNumberFromMixedString((item.price as string) || '') * item.quantity
+  }).filter(Boolean)
+  const totalCost = eachItemCost.reduce((a, b) => a + b, 0)
+  data.totalCost = totalCost
+  // get currency symbol
+  if (!content) return data
+  const currencySymbol = content.match(pricePattern)?.[0].charAt(0)
+  data.currencySymbol = currencySymbol
+  return data
+}
