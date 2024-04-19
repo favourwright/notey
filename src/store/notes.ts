@@ -13,20 +13,6 @@ export type NoteType = {
   // consider a sorting key
 }
 
-// sample grocery list
-export const sampleTemplate: string[] = [
-  "Note: few symbols like the ones below can be used to represent currency (for price tracking).",
-  "The first symbol found in the list will be used as the currency symbol above.",
-  "",
-  "Meat 🍖 - ₦3,000",
-  "- Vegetables 🥦 - #500",
-  "● Cucumber 🥒 - $1,000",
-  "Beans x4 - N400",
-  "Eggs 🥚 ₦3,600",
-  "Garri ₦1000",
-  "- Onions 🧅 - ₦900",
-]
-
 export const saveNote = async (payload:NoteType) => {
   try {
     const previousNotes = await getAllNotes()
@@ -84,8 +70,22 @@ export const deleteNote = async (noteId:string) => {
   }
 }
 
+// sample grocery list
+export const sampleTemplate: string[] = [
+  "Note: few symbols like the ones below can be used to represent currency (for price tracking).",
+  "The first symbol found in the list will be used as the currency symbol above.",
+  "",
+  "Meat 🍖 - ₦3,000",
+  "- Vegetables 🥦 - #500",
+  "● Cucumber 🥒 - $1,000",
+  "Beans x4 - N400",
+  "Eggs 🥚 ₦3,600",
+  "Garri ₦1000",
+  "- Onions 🧅 - ₦900",
+]
+
 // Regular expressions
-export const quantityPattern = /[x|X|*](\d+)/;
+export const quantityPattern = /[x|X|×|*](\d+)/;
 export const pricePattern = /([$#€¥£₽\₩N₦])(\d+)([,]?(\d+)?(\.\d+|\$\d+)?)*/; // Separated pattern for price
 export const itemRegex = /(○|-)? (.+) - \$([0-9]+(\.[0-9]+)?)?/g;
 
