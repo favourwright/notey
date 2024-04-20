@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
@@ -193,6 +193,11 @@ const NewNote = () => {
     });
   }
 
+  const handleOpenCatModal = () =>{
+    setIsCategoryModalOpen(true)
+    Keyboard.dismiss()
+  }
+
   return (
     <View className='flex-1 bg-white'>
       <StatusBar style='dark' backgroundColor='white' />
@@ -204,7 +209,7 @@ const NewNote = () => {
             {format(note.updatedAt, "dd / MM / yy")}
           </Text>
           <Text
-            onPress={()=>setIsCategoryModalOpen(true)}
+            onPress={handleOpenCatModal}
             className='text-gray-400'>
             #{selectedCategory?.name || '<uncategorized>'}
           </Text>
