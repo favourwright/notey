@@ -83,8 +83,8 @@ function AnimatedSplashScreen({ children }) {
   const handleEndSplashAnim = useCallback(async () => {
     // check if onboarding is complete else, start onboarding
     const check = await checkOnboarding()
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     if(!check) router.replace('/onboarding')
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setLottieAnimComplete(true);
   }, []);
   

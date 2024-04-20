@@ -21,6 +21,12 @@ const Slide = ({slide,index,x}: Props) => {
       [300, 0, 300],
       Extrapolation.CLAMP
     )
+    // const scaleAnim = interpolate(
+    //   x.value,
+    //   [(index-1)*WIDTH, index*WIDTH, (index+1)*WIDTH],
+    //   [2, 1, 2],
+    //   Extrapolation.CLAMP
+    // )
     return { transform: [{ translateY: translateYAnim }] }
   })
 
