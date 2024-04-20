@@ -7,8 +7,8 @@ import {
 } from "react-native";
 import LottieView from 'lottie-react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts, CoveredByYourGrace_400Regular } from '@expo-google-fonts/covered-by-your-grace';
+import { checkOnboardingSeen } from "@/store/onboarding";
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -67,22 +67,9 @@ function AnimatedSplashScreen({ children }) {
     onSplashScreenAssetsLoaded()
   }, [])
 
-  const checkOnboarding = async () => {
-    try {
-      const value = await AsyncStorage.getItem('@notes-app-x/onboardingViewed');
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      if(value !== null) {
-        return true
-      }
-      return false
-    } catch(e) {
-      console.log({'onboarding error': e});
-    }
-  }
-
   const handleEndSplashAnim = useCallback(async () => {
     // check if onboarding is complete else, start onboarding
-    const check = await checkOnboarding()
+    const check = await checkOnboardingSeen()
     if(!check) router.replace('/onboarding')
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setLottieAnimComplete(true);
