@@ -24,7 +24,9 @@ export const getAllCategories = async () => {
   try {
     const value = await AsyncStorage.getItem(STORE_KEY);
     if (value === null) return []
-    return JSON.parse(value) as NoteCategoryType[]
+    const cats = JSON.parse(value) as NoteCategoryType[]
+    // fix attempt on a one-time error were there was duplicate categories
+    return Array.from(new Set(cats.map(cat => cat.id))).map(id => cats.find(cat => cat.id === id))
   } catch (e) {
     console.log({GetAllCategoriesError: e})
   }
