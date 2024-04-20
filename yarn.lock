@@ -1202,6 +1202,11 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
+"@expo-google-fonts/covered-by-your-grace@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/covered-by-your-grace/-/covered-by-your-grace-0.2.3.tgz#b69dfc8c0c64568c4d7637cfe175f8f8e3959ecf"
+  integrity sha512-JtAPUT1gVmCkyHnwa1SpDVzZj8Mvfo8aKBywZhlbSSjPEy1cnSWkEa6id6aH6LZu5DBrKgW+/XvuLJjDtc4gVQ==
+
 "@expo/bunyan@^4.0.0":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@expo/bunyan/-/bunyan-4.0.0.tgz"

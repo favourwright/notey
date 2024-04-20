@@ -9,7 +9,6 @@
       "favicon": "./src/assets/images/favicon.png"
     },
     "icon": "./src/assets/images/icon.png",
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.favourwright.notesappx"
@@ -20,7 +19,7 @@
         "backgroundColor": "#FDFCDD"
       },
       "package": "com.favourwright.notesappx",
-      "softwareKeyboardLayoutMode":"pan"
+      "softwareKeyboardLayoutMode": "pan"
     },
     "plugins": [
       [
@@ -28,7 +27,8 @@
         {
           "origin": "https://n"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "name": "notes-app-x",
     "slug": "notes-app-x",
