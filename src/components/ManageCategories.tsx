@@ -124,6 +124,7 @@ const ManageCategories = ({
               onChangeText={setNewCat}
               onSubmitEditing={handleCreateCategory}
               placeholder='add new category'
+              enterKeyHint='done'
               className='self-stretch bg-black/80 p-4 py-3 text-lg leading-[18px]
               text-white placeholder:text-white/50 rounded-3xl'
             />}

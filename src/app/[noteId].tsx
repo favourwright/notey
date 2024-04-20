@@ -212,6 +212,7 @@ const NewNote = () => {
         <View className='flex-row justify-between items-center mt-2 px-5'>
           <TextInput
             value={note.title}
+            selectTextOnFocus={hasNoteId?false:true}
             onChangeText={(value) => handleInputChange({field:'title', value})}
             className='text-3xl py-2 flex-1'
             placeholder='untitled Note'
