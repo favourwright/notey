@@ -149,13 +149,13 @@ const Onboarding = () => {
     })
   },[])
   const handleNext = useCallback(async (finished:boolean) => {
-    if(finished) {
-      await setOnboardingSeen()
-      navigate('/')
-      return
-    }
     const username = await getUsername()
     if(!username) {
+      flatlistRef.current?.scrollToIndex({
+        index: 0,
+        animated: true
+      })
+
       Toast.show('Tell us your name na. haba!', {
         duration: Toast.durations.SHORT,
         backgroundColor: '#C9C9C9',
@@ -168,6 +168,13 @@ const Onboarding = () => {
       });
       return
     }
+
+    if(finished) {
+      await setOnboardingSeen()
+      navigate('/')
+      return
+    }
+
     flatlistRef.current?.scrollToIndex({
       index: flatlistIndex.value + 1,
       animated: true
