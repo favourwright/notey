@@ -43,6 +43,14 @@ const slides: SlideType[] = [
     description: 'This is a simple note taking app that allows you to create, edit and delete notes.',
     Component: ()=> {
       const [username, setUsername] = useState('')
+      // re-fill username onmount
+      useEffect(()=>{
+        (async ()=>{
+          const username = await getUsername()
+          if(username) setUsername(username)
+        })()
+      },[])
+
       // clearOnboardingRecords()
       const handleTextChange = (text:string) => {
         if(text.trim()==='') {
