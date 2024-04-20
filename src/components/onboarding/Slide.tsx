@@ -45,8 +45,8 @@ const Slide = ({slide,index,x}: Props) => {
       <ScrollView className='flex-1'>
         <View className='px-6 py-6'>
           <Text
-            style={{fontFamily: 'CoveredByYourGrace_400Regular'}}
-            className='text-[46px] text-left font-bold text-gray-800 leading-none'>
+            className='text-[46px] text-left font-semibold text-gray-800 leading-none'
+            style={{fontFamily: 'CoveredByYourGrace_400Regular'}}>
             {slide.title}
           </Text>
 

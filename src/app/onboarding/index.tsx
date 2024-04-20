@@ -45,7 +45,6 @@ const slides: SlideType[] = [
           <View className='gap-2'>
             <Text className='text-2xl text-gray-800'>Whats should we call you in these streets?</Text>
             <TextInput
-              autoFocus
               placeholder='Favour'
               maxLength={16}
               autoComplete='username'
@@ -146,10 +145,10 @@ const Onboarding = () => {
 
   return (
     <View className='flex-1 items-center relative'>
-      <StatusBar style='light' backgroundColor='white' />
+      <StatusBar style="light" />
       <Text
-        style={{top,fontFamily: 'CoveredByYourGrace_400Regular'}}
-        className='text-3xl text-white absolute z-10 font-bold'>
+        className='text-3xl text-white absolute z-10 font-semibold'
+        style={{top, fontFamily: 'CoveredByYourGrace_400Regular'}}>
         {appName}
       </Text>
       <Animated.FlatList
@@ -174,7 +173,7 @@ const Onboarding = () => {
         }}
       />
 
-      <View style={{paddingBottom:bottom}} className='self-stretch px-5 pt-3'>
+      <View style={{paddingBottom:bottom}} className='self-stretch px-5 pt-2'>
         <View className='flex-row justify-between'>
           <Pressable
             disabled
@@ -191,7 +190,7 @@ const Onboarding = () => {
           </Pressable>
         </View>
 
-        <Pagination count={slides.length} x={x} />
+        <Pagination count={slides.length} x={x} className='mb-1' />
       </View>
     </View>
   )

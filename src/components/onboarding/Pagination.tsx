@@ -4,11 +4,12 @@ import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedStyle } f
 type Props = {
   count: number
   x: SharedValue<number>
+  className?:string
 }
 
-const Pagination = ({count,x}: Props) => {
+const Pagination = ({count,x,className}: Props) => {
   return (
-    <View className='flex-row justify-center gap-3 mt-6'>
+    <View className={`flex-row justify-center gap-3 mt-6 ${className}`}>
       {Array.from({length: count}).map((_,i)=>(
         <Dot key={i} index={i} x={x} />
       ))}
@@ -28,7 +29,7 @@ const Dot = ({index,x}: {index:number,x:SharedValue<number>}) => {
     const widthAnim = interpolate(
       x.value,
       [(index-1)*WIDTH, index*WIDTH, (index+1)*WIDTH],
-      [10, 50, 10],
+      [10, 30, 10],
       Extrapolation.CLAMP
     )
     return { opacity, width: widthAnim }
