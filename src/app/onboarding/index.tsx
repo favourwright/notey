@@ -1,17 +1,18 @@
-import { View, Text, TextInput, Switch, Pressable, FlatList, ViewToken } from 'react-native'
+import { View, Text, TextInput, Switch, FlatList, ViewToken } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { clearAllCategories, getAllCategories, NoteCategoryType, saveCategory } from '@/store/categories'
 import uuid from 'react-native-uuid';
-import { SlideType } from '@/store/onboarding'
+import { setOnboardingSeen, SlideType, setUsername as setUsernameToStore, getUsername, clearOnboardingRecords, setStartNewNotesWithTemplate } from '@/store/onboarding'
 import Animated, { useAnimatedRef, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import Slide from '@/components/onboarding/Slide'
 import { StatusBar } from 'expo-status-bar'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import Octicons from '@expo/vector-icons/Octicons';
 import Pagination from '@/components/onboarding/Pagination'
+import ActionBtns from '@/components/onboarding/ActionBtns'
+import { debounce } from '@/constants/debounce'
+import Toast from 'react-native-root-toast'
 
 // add some defaults
 const defaultCategories:NoteCategoryType[] = [
@@ -33,6 +34,7 @@ const defaultCategories:NoteCategoryType[] = [
 ]
 
 // onboarding slides
+const setUsernameWithDebounced = debounce(setUsernameToStore, 500)
 const slides: SlideType[] = [
   {
     id: '1',
@@ -40,6 +42,17 @@ const slides: SlideType[] = [
     title: '8.93+ million apps yet we got to meet!',
     description: 'This is a simple note taking app that allows you to create, edit and delete notes.',
     Component: ()=> {
+      const [username, setUsername] = useState('')
+      // clearOnboardingRecords()
+      const handleTextChange = (text:string) => {
+        if(text.trim()==='') {
+          setUsername(null)
+          setUsernameWithDebounced(null)
+          return
+        }
+        setUsername(text.trim())
+        setUsernameWithDebounced(text)
+      }
       return (
         <View className='mt-10'>
           <View className='gap-2'>
@@ -47,6 +60,8 @@ const slides: SlideType[] = [
             <TextInput
               placeholder='Favour'
               maxLength={16}
+              value={username}
+              onChangeText={handleTextChange}
               autoComplete='username'
               className='self-start border-4 border-primary/80 min-w-40 bg-primary/70 text-white
               rounded-xl p-2 px-3 text-3xl font-bold placeholder:text-white/40'
@@ -82,7 +97,10 @@ const slides: SlideType[] = [
               </View>
               <Switch
                 value={withTemplate}
-                onValueChange={setWithTemplate}
+                onValueChange={(val)=>{
+                  setWithTemplate(val);
+                  setStartNewNotesWithTemplate(val)
+                }}
                 thumbColor='white'
                 trackColor={{true: '#000'}}
               />
@@ -114,21 +132,38 @@ const Onboarding = () => {
     clearAllCategories() // remove when done
     setDefaultCategories()
   },[])
-  
-  const finishOnboarding = async () => {
-    try {
-      await AsyncStorage.setItem('@notes-app-x/onboardingViewed', 'true');
-      navigate('/')
-    } catch (e) {
-      console.log({'error': e});
-    }
-  }
 
-  const handleNext = useCallback((index:number) => {
-    if(index === slides.length - 1) {
-      console.log('finished onboarding')
-      finishOnboarding()
+  const handlePrev = useCallback((first:boolean) => {
+    if(first) return
+    flatlistRef.current?.scrollToIndex({
+      index: flatlistIndex.value - 1,
+      animated: true
+    })
+  },[])
+  const handleNext = useCallback(async (finished:boolean) => {
+    if(finished) {
+      await setOnboardingSeen()
+      navigate('/')
+      return
     }
+    const username = await getUsername()
+    if(!username) {
+      Toast.show('Tell us your name na. haba!', {
+        duration: Toast.durations.SHORT,
+        backgroundColor: '#C9C9C9',
+        shadow: false,
+        textColor: 'black',
+        containerStyle: {
+          borderRadius: 14,
+          padding: 10,
+        }
+      });
+      return
+    }
+    flatlistRef.current?.scrollToIndex({
+      index: flatlistIndex.value + 1,
+      animated: true
+    })
   },[])
 
   const x = useSharedValue(0)
@@ -174,22 +209,13 @@ const Onboarding = () => {
       />
 
       <View style={{paddingBottom:bottom}} className='self-stretch px-5 pt-2'>
-        <View className='flex-row justify-between'>
-          <Pressable
-            disabled
-            className='p-4 px-7 bg-primary/10 rounded-xl'>
-            <FontAwesome6 name="arrow-left-long" size={24} color="black" />
-          </Pressable>
-
-          <Pressable
-            onPress={finishOnboarding}
-            className='flex-row gap-2 p-4 px-7 bg-accent rounded-xl items-center'>
-            {/* <FontAwesome6 name="arrow-right-long" size={24} color="white" /> */}
-            <Text className='text-black font-bold text-xl'>Finish</Text>
-            <Octicons name="check" size={24} color="black" />
-          </Pressable>
-        </View>
-
+        <ActionBtns
+          slidesCount={slides.length}
+          currentIndex={flatlistIndex}
+          x={x}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
         <Pagination count={slides.length} x={x} className='mb-1' />
       </View>
     </View>
