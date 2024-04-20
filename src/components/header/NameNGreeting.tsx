@@ -24,7 +24,7 @@ type Props = {
 
 const NameNGreeting = ({name}:Props) => {
   const [greeting, setGreeting] = useState<string|undefined>(undefined) // TODO: Implement time-based greeting
-  const initial = name.split(' ')[0].charAt(0).toUpperCase()
+  const initial = (name||'').split(' ')[0].charAt(0).toUpperCase()
 
   useEffect(() => {
     setGreeting(getGreeting())
