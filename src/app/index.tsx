@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useFocusEffect, useNavigation } from 'expo-router';
+import { useEffect, useLayoutEffect, useState } from 'react';
+import { useNavigation } from 'expo-router';
 import { View, Text, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import NameNGreeting from '@/components/header/NameNGreeting';
@@ -11,18 +11,25 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ManageCategories from '@/components/ManageCategories';
 import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearOnboardingRecords, getUsername } from '@/store/onboarding';
 
 export default function Home() {
   const navigation = useNavigation();
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+  const [username, setUsername] = useState('')
+
+  useEffect(()=>{
+    (async ()=>{
+      setUsername(await getUsername())
+    })()
+  },[])
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => <NameNGreeting name="Favour" />,
+      headerLeft: () => <NameNGreeting name={username} />,
     });
-  }, [navigation]);
+  }, [navigation,username]);
 
   const [notes, setNotes] = useState<NoteType[]>([])
   const renderedNotes = (noteCategory: NoteCategoryType|null) => {
@@ -47,10 +54,6 @@ export default function Home() {
   const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
   const [catList, setCatList] = useState<NoteCategoryType[]>([])
 
-  const resetOnboarding = () => {
-    AsyncStorage.removeItem('@notes-app-x/onboardingViewed')
-  }
-
   return (
     <View className="flex-1 bg-primary">
       <StatusBar style="light" />
@@ -58,7 +61,7 @@ export default function Home() {
         <View className='px-5 mt-10 flex-row items-end mb-8'>
           <View className='flex-grow gap-4'>
             <Text
-              onPress={resetOnboarding}
+              onPress={async ()=>await clearOnboardingRecords()}
               className='text-6xl text-secondary font-medium'
               style={{fontFamily: 'CoveredByYourGrace_400Regular'}}>
               Your
