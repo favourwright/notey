@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { clearAllCategories, getAllCategories, NoteCategoryType, saveCategory } from '@/store/categories'
 import uuid from 'react-native-uuid';
-import { setOnboardingSeen, SlideType, setUsername as setUsernameToStore, getUsername, clearOnboardingRecords, setStartNewNotesWithTemplate } from '@/store/onboarding'
+import { setOnboardingSeen, SlideType, setUsername as setUsernameToStore, getUsername, clearOnboardingRecords, setStartNewNotesWithTemplate, shouldStartNewNotesWithTemplate } from '@/store/onboarding'
 import Animated, { useAnimatedRef, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import Slide from '@/components/onboarding/Slide'
 import { StatusBar } from 'expo-status-bar'
@@ -13,6 +13,8 @@ import Pagination from '@/components/onboarding/Pagination'
 import ActionBtns from '@/components/onboarding/ActionBtns'
 import { debounce } from '@/constants/debounce'
 import Toast from 'react-native-root-toast'
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 // add some defaults
 const defaultCategories:NoteCategoryType[] = [
@@ -66,8 +68,8 @@ const slides: SlideType[] = [
           <View className='gap-2'>
             <Text className='text-2xl text-gray-800'>Whats should we call you in these streets?</Text>
             <TextInput
-              placeholder='Favour'
-              maxLength={16}
+              placeholder='name'
+              maxLength={20}
               value={username}
               onChangeText={handleTextChange}
               autoComplete='username'
@@ -86,19 +88,26 @@ const slides: SlideType[] = [
     description: 'You can create categories to help you organize your notes.',
     Component: ()=> {
       const [withTemplate, setWithTemplate] = useState(true)
+      // re-fill choice
+      useEffect(()=>{
+        (async ()=>{
+          const val = await shouldStartNewNotesWithTemplate()
+          setWithTemplate(val)
+        })()
+      },[])
 
       return (
         <View className='mt-10'>
           <View className='gap-3'>
             <View className='flex-row flex-wrap gap-2'>
-              <View><Text className='text-3xl'>🔐</Text></View>
+              <View><Ionicons name="lock-closed" size={28} color="black" /></View>
               <View className='flex-1'>
                 <Text className='text-2xl text-gray-800 font-medium'>Complete Privacy</Text>
                 <Text className='text-lg text-gray-500 leading-tight'>Your notes are totally private to you and your device</Text>
               </View>
             </View>
             <View className='flex-row flex-wrap gap-2 items-start'>
-              <View><Text className='text-3xl'>📒</Text></View>
+              <View><MaterialCommunityIcons name="note-plus" size={28} color="black" /></View>
               <View className='flex-1'>
                 <Text className='text-2xl text-gray-800 font-medium'>New notes</Text>
                 <Text className='text-lg text-gray-500 leading-tight'>Always create new notes with instructional template? (updateable later)</Text>
