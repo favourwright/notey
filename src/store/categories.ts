@@ -10,23 +10,45 @@ export enum CategoryActionModes {
   EDIT = 'edit',
   SELECT = 'select'
 }
+export type CatStoreType = {
+  categories: NoteCategoryType[],
+  activeCategory: NoteCategoryType,
+}
+
 export const saveCategory = async (payload:NoteCategoryType) => {
   try {
     const previousCategories = await getAllCategories()
     const newCategories = previousCategories?.length ? [payload, ...previousCategories] : [payload]
-    await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newCategories))
+    const storeData:CatStoreType = {
+      categories: newCategories,
+      activeCategory: payload
+    }
+    await AsyncStorage.setItem(STORE_KEY, JSON.stringify(storeData))
   } catch (e) {
     console.log({SaveCategoryError: e})
   }
 };
 
-export const getAllCategories = async () => {
+export const getCatStoreData = async ():Promise<CatStoreType> => {
   try {
     const value = await AsyncStorage.getItem(STORE_KEY);
-    if (value === null) return []
-    const cats = JSON.parse(value) as NoteCategoryType[]
+    if (value === null) return {
+      categories: [],
+      activeCategory: null
+    }
+    return JSON.parse(value) as CatStoreType
+  } catch (e) {
+    console.log({GetCatStoreDataError: e})
+  }
+}
+
+export const getAllCategories = async () => {
+  try {
+    const store = await getCatStoreData()
     // fix attempt on a one-time error were there was duplicate categories
-    return Array.from(new Set(cats.map(cat => cat.id))).map(id => cats.find(cat => cat.id === id))
+    return Array.from(new Set(store.categories
+      .map(cat => cat.id)))
+      .map(id => store.categories.find(cat => cat.id === id))
   } catch (e) {
     console.log({GetAllCategoriesError: e})
   }
@@ -34,10 +56,9 @@ export const getAllCategories = async () => {
 
 export const getCategoryById = async (categoryId:string) => {
   try {
-    const value = await AsyncStorage.getItem(STORE_KEY);
-    if (value === null) return null
-    const categories = JSON.parse(value) as NoteCategoryType[]
-    return categories.find(category => category.id === categoryId)
+    const cats = await getAllCategories();
+    if (!cats.length) return null
+    return cats.find(category => category.id === categoryId)
   } catch (e) {
     console.log({GetCategoryByIdError: e})
   }
@@ -47,7 +68,11 @@ export const deleteCategory = async (categoryId:string) => {
   try {
     const previousCategories = await getAllCategories()
     const newCategories = previousCategories.filter(category => category.id !== categoryId)
-    await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newCategories))
+    const newStoreData = await getCatStoreData()
+    newStoreData.categories = newCategories
+    // get active data and if it's the one being deleted, set active to null
+    if (newStoreData.activeCategory.id === categoryId) newStoreData.activeCategory = null
+    await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newStoreData))
   } catch (e) {
     console.log({DeleteCategoryError: e})
   }
