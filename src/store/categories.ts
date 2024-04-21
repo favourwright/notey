@@ -90,7 +90,7 @@ export const deleteCategory = async (categoryId:string) => {
     const newStoreData = await getCatStoreData()
     newStoreData.categories = newCategories
     // get active data and if it's the one being deleted, set active to null
-    if (newStoreData.activeCategory.id === categoryId) newStoreData.activeCategory = null
+    if (newStoreData.activeCategory?.id === categoryId) newStoreData.activeCategory = null
     await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newStoreData))
   } catch (e) {
     console.log({DeleteCategoryError: e})
