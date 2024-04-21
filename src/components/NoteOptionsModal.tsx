@@ -144,7 +144,7 @@ const NoteOptionsModal = ({
               onPress={handleDeleteNote}
               className='flex-row items-center gap-3 py-3'>
               <Feather name="trash-2" size={24} color="red" />
-              <Text className='flex-1 text-2xl text-primary/80'>Delete note</Text>
+              <Text className='flex-1 text-2xl text-red-600/80'>Delete note</Text>
             </Pressable>
           </View>}
         </BottomSheetView>
