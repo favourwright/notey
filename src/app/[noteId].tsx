@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
@@ -22,6 +22,7 @@ import ManageCategories from '@/components/ManageCategories';
 import Toast from 'react-native-root-toast';
 import * as Clipboard from 'expo-clipboard';
 import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -29,6 +30,7 @@ const NewNote = () => {
   const hasNoteId = params.noteId !== 'undefined'
   const [storedNoteId, setStoredNoteId] = useState<string|undefined>(undefined)
   const { bottom } = useSafeAreaInsets()
+  const { width:screenWidth } = useWindowDimensions()
 
   const [note, setNote] = useState<NoteType>({
     id: '',
@@ -198,6 +200,34 @@ const NewNote = () => {
     Keyboard.dismiss()
   }
 
+  const isDirtySharedVal = useSharedValue(false)
+  useEffect(()=>{
+    isDirtySharedVal.value = isDirty.current
+  },[isDirty.current])
+
+  const animatedBtnStyle = useAnimatedStyle(()=>{
+    return {
+      opacity: isDirtySharedVal.value ?
+        withSpring(1) :
+        withSpring(0),
+      transform: [{
+        translateY: isDirtySharedVal.value ?
+          withSpring(0) :
+          withSpring(100)
+      }]
+    }
+  })
+  const pressedSharedVal = useSharedValue(false)
+  const animatedBtnOnpressStyle = useAnimatedStyle(()=>{
+    return {
+      transform: [{
+        scale: pressedSharedVal.value ?
+          withSpring(.91) :
+          withSpring(1)
+      }]
+    }
+  })
+
   return (
     <View className='flex-1 bg-white'>
       <StatusBar style='dark' backgroundColor='white' />
@@ -232,28 +262,36 @@ const NewNote = () => {
           </Pressable>}
         </View>
 
-        <ScrollView className='flex-1'>
+        <ScrollView className='flex-1 flex-row'>
           <TextInput
             ref={contentInputRef}
             value={note.content}
             onChangeText={(value) => handleInputChange({field:'content', value})}
-            className='text-2xl text-gray-600 mt-2 flex-1 px-5'
-            style={{textAlignVertical: "top",paddingBottom:bottom}}
+            className='text-2xl text-gray-600 mt-2 flex-1 px-5 w-full'
+            style={{textAlignVertical: "top",paddingBottom:bottom, width:screenWidth}}
             multiline={true}
             numberOfLines={1}
           />
         </ScrollView>
 
-        {isDirty.current && <Pressable
-          onPress={handleSaveNote}
-          style={{elevation: 5}}
-          className={`absolute bottom-10 right-5 flex-row self-end justify-center items-center gap-2
-          bg-accent mt-2 px-5 py-3 rounded-full shadow-lg shadow-primary/20`}>
-          <Entypo name="save" size={20} className='!text-black/70' />
-          <Text className='text-2xl text-black/70'>
-            {!hasNoteId && !storedNoteId ? 'save' : 'update'}
-          </Text>
-        </Pressable>}
+        <Animated.View
+          style={animatedBtnStyle}
+          className='absolute bottom-10 right-5'>
+          <Pressable onPress={handleSaveNote}>
+            {({pressed}) => {
+              pressedSharedVal.value = pressed
+              return (<Animated.View
+                style={[{elevation: 5}, animatedBtnOnpressStyle]}
+                className='flex-row self-end justify-center items-center gap-2
+              bg-accent px-5 py-3 rounded-full shadow-lg shadow-primary/20'>
+                <Entypo name="save" size={20} className='!text-black/70' />
+                <Text className='text-2xl text-black/70'>
+                  {!hasNoteId && !storedNoteId ? 'save' : 'update'}
+                </Text>
+              </Animated.View>)
+            }}
+          </Pressable>
+        </Animated.View>
       </View>
       <ManageCategories
         mode={CategoryActionModes.SELECT}
