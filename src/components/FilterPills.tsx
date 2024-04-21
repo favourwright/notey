@@ -39,8 +39,9 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
   useEffect(() => {
     if(!selected || !list.length || !filterRef?.current) return
     setActiveFilter(selected)
-    filterRef?.current.scrollToIndex({
-      index: list.findIndex(item => item.id === selected.id),
+    const index = list.findIndex(item => item.id === selected.id)
+    if(index >= 0) filterRef?.current.scrollToIndex({
+      index,
       animated: true
     })
   }, [selected, list, filterRef?.current])
