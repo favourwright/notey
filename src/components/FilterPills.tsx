@@ -39,11 +39,9 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
   useEffect(() => {
     if(!selected || !list.length || !filterRef?.current) return
     setActiveFilter(selected)
-    setTimeout(() => {
-      filterRef?.current.scrollToIndex({
-        index: list.findIndex(item => item.id === selected.id),
-        animated: true
-      })
+    filterRef?.current.scrollToIndex({
+      index: list.findIndex(item => item.id === selected.id),
+      animated: true
     })
   }, [selected, list, filterRef?.current])
 
@@ -63,6 +61,11 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
         horizontal
         data={list}
         keyExtractor={item => item.id}
+        getItemLayout={(_, index) => ({
+          length: 100,
+          offset: 100 * index,
+          index
+        })}
         renderItem={({ item, index }) => (
           <TouchableHighlight
             key={index}
