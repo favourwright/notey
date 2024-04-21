@@ -21,7 +21,7 @@ import uuid from 'react-native-uuid';
 import ManageCategories from '@/components/ManageCategories';
 import Toast from 'react-native-root-toast';
 import * as Clipboard from 'expo-clipboard';
-import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
+import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType } from '@/store/categories';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 const NewNote = () => {
@@ -70,7 +70,14 @@ const NewNote = () => {
       isDirty.current = true;
 
       (async ()=>{
-        // for categories
+        // for categories, first check if user has an actively selected category
+        const activeCat = await getActiveCategory()
+        if(activeCat) {
+          setSelectedcategory(activeCat)
+          setNote((prev)=>({...prev, categoryId: activeCat.id}))
+          return
+        }
+        // if not, set the first category as the active category
         const cats = await getAllCategories()
         if(cats.length) setSelectedcategory(cats[0])
         setNote((prev)=>({...prev, categoryId: cats[0].id}))

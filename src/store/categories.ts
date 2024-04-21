@@ -64,6 +64,25 @@ export const getCategoryById = async (categoryId:string) => {
   }
 }
 
+export const getActiveCategory = async () => {
+  try {
+    const store = await getCatStoreData()
+    return store.activeCategory
+  } catch (e) {
+    console.log({GetActiveCategoryError: e})
+  }
+}
+export const setActiveCategory = async (categoryId:string) => {
+  try {
+    const store = await getCatStoreData()
+    const category = await getCategoryById(categoryId)
+    store.activeCategory = category
+    await AsyncStorage.setItem(STORE_KEY, JSON.stringify(store))
+  } catch (e) {
+    console.log({SetActiveCategoryError: e})
+  }
+}
+
 export const deleteCategory = async (categoryId:string) => {
   try {
     const previousCategories = await getAllCategories()

@@ -10,7 +10,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ManageCategories from '@/components/ManageCategories';
-import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
+import { CategoryActionModes, getAllCategories, NoteCategoryType, setActiveCategory } from '@/store/categories';
 import { clearOnboardingRecords, getUsername } from '@/store/onboarding';
 import NoteOptionsModal from '@/components/NoteOptionsModal';
 
@@ -55,6 +55,11 @@ export default function Home() {
   const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
   const [catList, setCatList] = useState<NoteCategoryType[]>([])
 
+  const handleSetSelectedCategory = (cat:NoteCategoryType) => {
+    setSelectedcategory(cat)
+    setActiveCategory(cat?.id)
+  }
+
   const noteModal = useState(false)
   const [noteToSeeOptions, setNoteToSeeOptions] = useState<NoteType>(undefined)
   const handleShowNoteOptions = (note:NoteType) =>{
@@ -92,7 +97,7 @@ export default function Home() {
           <FilterPills
             list={catList}
             selected={selectedCategory}
-            onChange={setSelectedcategory}
+            onChange={handleSetSelectedCategory}
             onAddBtnPress={()=>setIsCategoryModalOpen(true)}
           />
         </View>
