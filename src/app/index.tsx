@@ -12,6 +12,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import ManageCategories from '@/components/ManageCategories';
 import { CategoryActionModes, getAllCategories, NoteCategoryType } from '@/store/categories';
 import { clearOnboardingRecords, getUsername } from '@/store/onboarding';
+import NoteOptionsModal from '@/components/NoteOptionsModal';
 
 export default function Home() {
   const navigation = useNavigation();
@@ -54,6 +55,14 @@ export default function Home() {
   const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
   const [catList, setCatList] = useState<NoteCategoryType[]>([])
 
+  const noteModal = useState(false)
+  const [noteToSeeOptions, setNoteToSeeOptions] = useState<NoteType>(undefined)
+  const handleShowNoteOptions = (note:NoteType) =>{
+    setNoteToSeeOptions(note)
+    const [_,setter] = noteModal
+    setter(true)
+  }
+
   return (
     <View className="flex-1 bg-primary">
       <StatusBar style="light" />
@@ -89,7 +98,10 @@ export default function Home() {
         </View>
 
         <View className='mt-8 px-5 flex-1'>
-          <Notelist notes={renderedNotes(selectedCategory)} />
+          <Notelist
+            notes={renderedNotes(selectedCategory)}
+            onShowOptions={handleShowNoteOptions}
+          />
 
           {/* emoty state UI */}
           {renderedNotes(selectedCategory).length === 0 && (
@@ -110,6 +122,14 @@ export default function Home() {
         mode={CategoryActionModes.EDIT}
         onChange={setCatList}
         isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]}
+      />
+      <NoteOptionsModal
+        note={noteToSeeOptions}
+        isOpen={noteModal}
+        onNoteDelete={async ()=>{
+          const notes = await getAllNotes()
+          setNotes(notes)
+        }}
       />
     </View>
   );

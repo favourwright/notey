@@ -3,12 +3,14 @@ import Feather from '@expo/vector-icons/Feather'
 import Colors from '@/constants/Colors'
 import { useRouter } from 'expo-router'
 import { NoteType } from '@/store/notes'
+import * as Haptics from 'expo-haptics';
 
 type Props = {
   index: number
   note: NoteType
+  onShowOptions: (note: NoteType) => void
 }
-const NoteItem = ({ note, index }:Props) => {
+const NoteItem = ({ note, index, onShowOptions }:Props) => {
   const { navigate } = useRouter()
   const renderedIndex = (index+1) < 10 ? `0${index+1}` : index+1
   // in case note has more than 2 lines of content, truncate it,
@@ -16,8 +18,16 @@ const NoteItem = ({ note, index }:Props) => {
   const multilineTruncate = note.content.split('\n').slice(0, 2).join('\n')
   const renderedContent = multilineTruncate.length > 50 ? `${multilineTruncate.slice(0, 50)}...` : multilineTruncate
 
+  const handleShowNoteOptions = ()=>{
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    onShowOptions && onShowOptions(note)
+  }
+  
   return (
-    <TouchableOpacity activeOpacity={0.7} onPress={()=>navigate(`/${note.id}`)}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={()=>navigate(`/${note.id}`)}
+      onLongPress={handleShowNoteOptions}>
       <View className='flex-row gap-4 py-5 h-32 border-t border-secondary/60'>
         <Text className='text-secondary/40 text-lg font-semibold'>{renderedIndex} /</Text>
         <View className='flex-1'>
