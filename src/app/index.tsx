@@ -10,7 +10,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ManageCategories from '@/components/ManageCategories';
-import { CategoryActionModes, getAllCategories, NoteCategoryType, setActiveCategory } from '@/store/categories';
+import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType, setActiveCategory } from '@/store/categories';
 import { clearOnboardingRecords, getUsername } from '@/store/onboarding';
 import NoteOptionsModal from '@/components/NoteOptionsModal';
 
@@ -46,6 +46,10 @@ export default function Home() {
       // for categories
       const cats = await getAllCategories()
       setCatList(cats)
+
+      // for active category
+      const activeCat = await getActiveCategory()
+      setSelectedcategory(activeCat)
     });
   
     return unsubscribe; // Cleanup function

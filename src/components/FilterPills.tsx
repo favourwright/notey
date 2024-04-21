@@ -32,16 +32,20 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
       return
     }
 
-    filterRef.current?.scrollToIndex({index, animated: true})
     onChange(item)
     setActiveFilter(item)
     navigation.setParams({ active_category: item  } as undefined);
   }
   useEffect(() => {
+    if(!selected || !list.length || !filterRef?.current) return
+    setActiveFilter(selected)
     setTimeout(() => {
-      selected && filterRef.current?.scrollToIndex({index: list.indexOf(selected), animated: true})
-    }, 1000)
-  }, [])
+      filterRef?.current.scrollToIndex({
+        index: list.findIndex(item => item.id === selected.id),
+        animated: true
+      })
+    })
+  }, [selected, list, filterRef?.current])
 
   const isFirstItem = (index: number) => index === 0
   const isLastItem = (index: number) => index === list.length - 1
