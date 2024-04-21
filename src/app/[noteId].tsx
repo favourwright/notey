@@ -167,7 +167,7 @@ const NewNote = () => {
         onPress: () => {},
         style: 'cancel',
       },
-      {text: 'OK', onPress: async () => {
+      {text: 'Delete', onPress: async () => {
         // delete note
         await deleteNote(id)
         navigation.goBack()
@@ -256,7 +256,7 @@ const NewNote = () => {
             onLongPress={handleCopyTotalCost}
             className='pl-2 flex-row items-start'>
             <Text className='text-3xl text-accent'>{detectedCurrencySymbol}</Text>
-            <Text className='text-3xl max-w-56'>
+            <Text className='text-3xl max-w-56' numberOfLines={1}>
               {detectedTotalCost.toLocaleString()}
             </Text>
           </Pressable>}
