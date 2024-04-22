@@ -13,6 +13,7 @@ import Seperator from './Seperator';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import Toast from 'react-native-root-toast';
+import Colors from '@/constants/Colors';
 
 const NoteOptionsModal = ({
   isOpen:[openState,setOpenState],
@@ -115,6 +116,8 @@ const NoteOptionsModal = ({
         onChange={handleSheetChanges}
         keyboardBehavior="interactive"
         onDismiss={() => setOpenState(false)}
+        backgroundStyle={{backgroundColor: Colors.dark.primary}}
+        handleIndicatorStyle={{backgroundColor: Colors.dark.secondary}}
       >
         <BottomSheetView className='flex-1 px-5'>
           {note && <View style={{paddingBottom:bottom}} className='flex-1'>
@@ -122,9 +125,9 @@ const NoteOptionsModal = ({
               onPress={handleCopyTotalCost}
               className='flex-row items-center gap-3 py-3'>
               <Feather name="copy" size={24} color="gray" />
-              <Text className='flex-1 text-2xl text-primary/80'>Copy total</Text>
-              <Text className='text-2xl text-primary/30 max-w-40 flex-row' numberOfLines={1}>
-                <Text className='text-2xl text-primary/30'>{detectedCurrencySymbol || ''}</Text>
+              <Text className='flex-1 text-2xl text-secondary/80'>Copy total</Text>
+              <Text className='text-2xl text-secondary/30 max-w-40 flex-row' numberOfLines={1}>
+                <Text className='text-2xl'>{detectedCurrencySymbol || ''}</Text>
                 {detectedTotalCost.toLocaleString()}
               </Text>
             </Pressable>
@@ -135,7 +138,7 @@ const NoteOptionsModal = ({
               onPress={handleCopyContent}
               className='flex-row items-center gap-3 py-3'>
               <Feather name="copy" size={24} color="gray" />
-              <Text className='flex-1 text-2xl text-primary/80'>Copy content</Text>
+              <Text className='flex-1 text-2xl text-secondary/80'>Copy content</Text>
             </Pressable>
 
             <Seperator padding='px-0' color='bg-primary/10' />
