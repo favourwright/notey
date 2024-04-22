@@ -100,6 +100,7 @@ const NewNote = () => {
       setSavedNoteState({
         title: note.title,
         content: note.content,
+        categoryId: note.categoryId,
       })
       setStoredNoteId(note.id)
       setSelectedcategory(note.category)
@@ -139,20 +140,32 @@ const NewNote = () => {
   }, [navigation, note.title, note.content, storedNoteId])
 
   const isDirty = useRef<boolean>()
+  const isTitleDirty = useRef<boolean>()
+  const isActiveCategoryDirty = useRef<boolean>()
+  const isSomethingIsDirty = () => {
+    return isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
+  }
   const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
     return oldValue !== newValue
   }
 
   const handleInputChange = ({field,value}:{field:'title'|'content',value:string}) => {
-    isDirty.current = false
     if(field==='title') setNote({...note, title: value})
     if(field==='content') setNote({...note, content: value})
 
     // check dirtiness
-    isDirty.current = checkIfDirty({
-      oldValue: field==='title' ? savedNoteState.title : savedNoteState.content,
-      newValue: value
-    })
+    if(field==='content') {
+      isDirty.current = checkIfDirty({
+        oldValue: savedNoteState.content,
+        newValue: value
+      })
+    }
+    if(field==='title') {
+      isTitleDirty.current = checkIfDirty({
+        oldValue: savedNoteState.title,
+        newValue: value
+      })
+    }
   }
 
   // handle saving / updating note
@@ -164,8 +177,11 @@ const NewNote = () => {
     setSavedNoteState({
       title: note.title,
       content: note.content,
+      categoryId: note.categoryId,
     })
     isDirty.current = false
+    isTitleDirty.current = false
+    isActiveCategoryDirty.current = false
     setStoredNoteId(note.id)
   }
   const handleDeleteNote = async (id:string) => {
@@ -186,7 +202,10 @@ const NewNote = () => {
   const handleCategoryUpdate = (cat:NoteCategoryType)=>{
     setSelectedcategory(cat);
     setNote({...note, categoryId: cat.id})
-    isDirty.current = true
+    isActiveCategoryDirty.current = checkIfDirty({
+      oldValue: savedNoteState.categoryId,
+      newValue: cat.id
+    })
   }
 
   const handleCopyTotalCost = async () =>{
@@ -211,8 +230,8 @@ const NewNote = () => {
 
   const isDirtySharedVal = useSharedValue(false)
   useEffect(()=>{
-    isDirtySharedVal.value = isDirty.current
-  },[isDirty.current])
+    isDirtySharedVal.value = isSomethingIsDirty()
+  },[isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
 
   const animatedBtnStyle = useAnimatedStyle(()=>{
     return {
