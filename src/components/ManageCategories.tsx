@@ -14,6 +14,7 @@ import Seperator from './Seperator';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import uuid from 'react-native-uuid';
+import Colors from '@/constants/Colors';
 
 const ManageCategories = ({
   isOpen:[openState,setOpenState],
@@ -116,6 +117,8 @@ const ManageCategories = ({
         onChange={handleSheetChanges}
         keyboardBehavior="interactive"
         onDismiss={() => setOpenState(false)}
+        backgroundStyle={{backgroundColor: Colors.dark.primary}}
+        handleIndicatorStyle={{backgroundColor: Colors.dark.secondary}}
       >
         <BottomSheetView className='flex-1 px-5'>
           <View style={{paddingBottom:bottom}} className='flex-1'>
@@ -125,11 +128,11 @@ const ManageCategories = ({
               onSubmitEditing={handleCreateCategory}
               placeholder='add new category'
               enterKeyHint='done'
-              className='self-stretch bg-black/80 p-4 py-3 text-lg leading-[18px]
+              className='self-stretch bg-white/10 p-4 py-3 text-lg leading-[18px]
               text-white placeholder:text-white/50 rounded-3xl'
             />}
             <View className='flex-row justify-between'>
-              <Text className='mt-3 text-lg font-medium opacity-50'>Categories</Text>
+              <Text className='mt-3 text-lg font-medium text-white/50'>Categories</Text>
               {mode === CategoryActionModes.SELECT && (
                 <Text
                   onPress={()=>setActiveMode(
@@ -139,7 +142,7 @@ const ManageCategories = ({
                         CategoryActionModes.SELECT
                     )
                   }
-                  className='mt-3 text-lg font-medium'>
+                  className='mt-3 text-lg font-medium text-white'>
                   {activeMode===CategoryActionModes.SELECT ? 'edit' : 'done'}
                 </Text>
               )}
@@ -159,7 +162,7 @@ const ManageCategories = ({
                   handleSelect={onCategorySelect}
                 />
               )}
-              ItemSeparatorComponent={()=><Seperator padding='px-0' />}
+              ItemSeparatorComponent={()=><Seperator padding='px-0' color='bg-white/10' />}
             />
           </View>
         </BottomSheetView>
@@ -186,16 +189,20 @@ const CategoryItem = ({
   return (
     <View
       className={`flex-row py-2 gap-4 items-center border-y
-      ${isHighlighted && mode === CategoryActionModes.SELECT ? 'bg-black/5 border-black rounded' : 'border-transparent'}
+      ${isHighlighted && mode === CategoryActionModes.SELECT ? 'bg-white/5 border-white rounded' : 'border-transparent'}
     `}>
       {mode === CategoryActionModes.EDIT && <Pressable
         onPress={()=>handleDeleteCategory(category.id)}
         disabled={category?.isDefault}>
-        <Entypo name="circle-with-minus" size={30} color={category?.isDefault ? "lightgray" : 'black'} />
+        <Entypo
+          name="circle-with-minus" size={30}
+          style={{opacity: category?.isDefault ? 0.3 : 0.8}}
+          color={Colors.dark.secondary}
+        />
       </Pressable>}
       <Text
         onPress={()=>mode === CategoryActionModes.SELECT && handleSelect && handleSelect(category)}
-        className='text-2xl flex-1'
+        className='text-2xl flex-1 text-secondary/80'
         suppressHighlighting
         disabled={mode === CategoryActionModes.EDIT}>
         {category.name}
