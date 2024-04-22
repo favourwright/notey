@@ -13,6 +13,7 @@ import ManageCategories from '@/components/ManageCategories';
 import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType, setActiveCategory } from '@/store/categories';
 import { clearOnboardingRecords, getUsername } from '@/store/onboarding';
 import NoteOptionsModal from '@/components/NoteOptionsModal';
+import Seperator from '@/components/Seperator';
 
 export default function Home() {
   const navigation = useNavigation();
@@ -116,6 +117,7 @@ export default function Home() {
         </View>
 
         <View className='mt-8 px-5 flex-1'>
+          <Seperator padding='px-0' color='bg-secondary/20' />
           <Notelist
             notes={renderedNotes(selectedCategory)}
             onShowOptions={handleShowNoteOptions}

@@ -2,6 +2,7 @@ import React from 'react'
 import NoteItem from './NoteItem'
 import { NoteType } from '@/store/notes'
 import Animated, { CurvedTransition, FadeInDown, FadeInUp } from 'react-native-reanimated'
+import Seperator from '../Seperator'
 
 type Props = {
   notes: NoteType[]
@@ -24,6 +25,7 @@ const Notelist = ({ notes, onShowOptions }:Props) => {
           <NoteItem onShowOptions={onShowOptions} note={item} index={index} />
         </Animated.View>
       )}
+      ItemSeparatorComponent={()=><Seperator padding='px-0' color='bg-secondary/20' />}
     />
   )
 }

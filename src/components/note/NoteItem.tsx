@@ -28,7 +28,7 @@ const NoteItem = ({ note, index, onShowOptions }:Props) => {
       activeOpacity={0.7}
       onPress={()=>navigate(`/${note.id}`)}
       onLongPress={handleShowNoteOptions}>
-      <View className='flex-row gap-4 py-5 h-32 border-t border-secondary/60 bg-primary'>
+      <View className='flex-row gap-4 py-5 h-32 bg-primary'>
         <Text className='text-secondary/40 text-lg font-semibold'>{renderedIndex} /</Text>
         <View className='flex-1'>
           <Text numberOfLines={1} className='text-4xl text-secondary'>{!!note.title.trim() ? note.title : 'untitled note'}</Text>
