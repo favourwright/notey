@@ -19,9 +19,10 @@ export const saveCategory = async (payload:NoteCategoryType) => {
   try {
     const previousCategories = await getAllCategories()
     const newCategories = previousCategories?.length ? [payload, ...previousCategories] : [payload]
+    const activeCategory = await getActiveCategory()
     const storeData:CatStoreType = {
       categories: newCategories,
-      activeCategory: payload
+      activeCategory
     }
     await AsyncStorage.setItem(STORE_KEY, JSON.stringify(storeData))
   } catch (e) {
