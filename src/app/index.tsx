@@ -89,7 +89,6 @@ export default function Home() {
         <View className='px-5 mt-10 flex-row items-end mb-8'>
           <View className='flex-grow gap-4'>
             <Text
-              onPress={async ()=>await clearOnboardingRecords()}
               className='text-6xl text-secondary font-medium'
               style={{fontFamily: 'CoveredByYourGrace_400Regular'}}>
               Your

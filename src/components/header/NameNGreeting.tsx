@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import NameInitialIcon from '@/components/NameInitialIcon';
+import { useRouter } from 'expo-router';
 
 const getGreeting = () => {
   const now = new Date();
@@ -25,6 +26,7 @@ type Props = {
 const NameNGreeting = ({name}:Props) => {
   const [greeting, setGreeting] = useState<string|undefined>(undefined) // TODO: Implement time-based greeting
   const initial = (name||'').split(' ')[0].charAt(0).toUpperCase()
+  const router = useRouter()
 
   useEffect(() => {
     setGreeting(getGreeting())
@@ -32,7 +34,12 @@ const NameNGreeting = ({name}:Props) => {
   
   return (
     <View className='flex-row items-center gap-3'>
-      <NameInitialIcon initials={initial} />
+      <Pressable
+        onPress={()=>router.push('/settings')}
+        className='rounded-full'
+        hitSlop={100}>
+        <NameInitialIcon initials={initial} />
+      </Pressable>
 
       <View className='flex-row gap-1'>
         <Text
