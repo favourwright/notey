@@ -64,6 +64,15 @@ export default function Home() {
     setActiveCategory(cat?.id)
   }
 
+  const handleCatUpdate = (cats:NoteCategoryType[]) => {
+    setCatList(cats)
+    // if the selected category is deleted, reset the selected category
+    if(selectedCategory && !cats.find(cat => cat.id === selectedCategory.id)){
+      setSelectedcategory(null)
+      setActiveCategory(null)
+    }
+  }
+
   const noteModal = useState(false)
   const [noteToSeeOptions, setNoteToSeeOptions] = useState<NoteType>(undefined)
   const handleShowNoteOptions = (note:NoteType) =>{
@@ -129,7 +138,7 @@ export default function Home() {
       </ScrollView>
       <ManageCategories
         mode={CategoryActionModes.EDIT}
-        onChange={setCatList}
+        onChange={handleCatUpdate}
         isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]}
       />
       <NoteOptionsModal
