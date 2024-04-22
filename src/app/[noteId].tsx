@@ -21,6 +21,7 @@ import uuid from 'react-native-uuid';
 import ManageCategories from '@/components/ManageCategories';
 import Toast from 'react-native-root-toast';
 import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
 import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType } from '@/store/categories';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -168,6 +169,7 @@ const NewNote = () => {
     setStoredNoteId(note.id)
   }
   const handleDeleteNote = async (id:string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     Alert.alert('Confirm note delete', null, [
       {
         text: 'Cancel',
