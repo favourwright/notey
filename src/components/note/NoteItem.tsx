@@ -34,7 +34,7 @@ const NoteItem = ({ note, index, onShowOptions }:Props) => {
           <Text numberOfLines={1} className='text-4xl text-secondary'>{!!note.title.trim() ? note.title : 'untitled note'}</Text>
           <Text className='text-xl text-secondary/50 truncate'>{renderedContent}</Text>
         </View>
-        <Feather name="arrow-up-right" size={24} color={Colors.dark.text} />
+        <Feather name="arrow-up-right" size={24} color={Colors.dark.secondary} />
       </View>
     </TouchableOpacity>
   )

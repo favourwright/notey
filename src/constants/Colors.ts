@@ -1,5 +1,3 @@
-const tintColor = '#FE6902';
-
 export default {
   // light: {
   //   text: '#000',
@@ -9,8 +7,9 @@ export default {
   //   tabIconSelected: tintColorLight,
   // },
   dark: {
-    text: '#F5F5F5',
-    background: '#131313',
-    tint: tintColor,
+    primary: '#131313',
+    secondary: '#F5F5F5',
+    'light-gray': '#C9C9C9',
+    accent: '#FE6902',
   },
 };

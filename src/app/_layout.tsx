@@ -17,14 +17,14 @@ export default function AppLayout() {
         <SplashScreen>
           <Stack screenOptions={{}}>
             <Stack.Screen name="index" options={{
-              headerStyle: { backgroundColor: Colors.dark.background },
+              headerStyle: { backgroundColor: Colors.dark.primary },
               // contentStyle: {
-              //   borderTopColor: Colors.dark.text,
+              //   borderTopColor: Colors.dark.primary,
               //   borderTopWidth: 1,
               // },
               headerRight: () => (
                 <TouchableOpacity activeOpacity={.8} onPress={() => navigate('/undefined')}>
-                  <AntDesign name="pluscircle" size={24} color={Colors.dark.text} />
+                  <AntDesign name="pluscircle" size={24} color={Colors.dark.secondary} />
                 </TouchableOpacity>
               ),
             }} />

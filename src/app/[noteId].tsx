@@ -117,7 +117,7 @@ const NewNote = () => {
       title: null,
       headerLeft: () => (
         <TouchableOpacity activeOpacity={.8} onPress={() => navigation.goBack()}>
-          <Feather name="arrow-left" size={26} color={Colors.dark.background} />
+          <Feather name="arrow-left" size={26} color={Colors.dark.primary} />
         </TouchableOpacity>
       ),
       headerRight: () => (
