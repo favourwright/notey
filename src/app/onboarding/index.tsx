@@ -130,7 +130,7 @@ const slides: SlideType[] = [
 ]
 
 const Onboarding = () => {
-  const { navigate } = useRouter()
+  const { replace } = useRouter()
   const { top, bottom } = useSafeAreaInsets()
   const flatlistRef = useAnimatedRef<FlatList<SlideType>>()
   const flatlistIndex = useSharedValue(0)
@@ -180,7 +180,7 @@ const Onboarding = () => {
 
     if(finished) {
       await setOnboardingSeen()
-      navigate('/')
+      replace('/')
       return
     }
 
