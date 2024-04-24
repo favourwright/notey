@@ -10,7 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Entypo from '@expo/vector-icons/Entypo';
 import { clearAllNotes } from '@/store/notes';
 import { clearAllCategories } from '@/store/categories';
-import router from 'expo-router';
 
 type Props = {
 
@@ -67,7 +66,11 @@ const index = ({ }: Props) => {
       <StatusBar style="light" />
       <View className='items-center py-10 bg-primary'>
         <RotatingInitial initial={(username || '').charAt(0)} />
-        <Text className='text-secondary/80 text-2xl font-extrabold mt-3'>{username}</Text>
+        <Text
+          style={{fontFamily: 'CoveredByYourGrace_400Regular'}}
+          className='text-secondary/80 text-4xl font-semibold mt-3'>
+          {username}
+        </Text>
       </View>
 
       <View
@@ -127,7 +130,7 @@ const index = ({ }: Props) => {
 
 export default index
 
-const duration = 10000;
+const duration = 50000;
 const easing = Easing.linear
 const RotatingInitial = ({ initial }: { initial: string }) => {
   const sv = useSharedValue(0);
