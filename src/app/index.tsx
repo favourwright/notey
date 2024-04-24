@@ -21,12 +21,6 @@ export default function Home() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
   const [username, setUsername] = useState('')
 
-  useEffect(()=>{
-    (async ()=>{
-      setUsername(await getUsername())
-    })()
-  },[])
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => <NameNGreeting name={username} />,
@@ -51,6 +45,9 @@ export default function Home() {
       // for active category
       const activeCat = await getActiveCategory()
       setSelectedcategory(activeCat)
+
+      // for username
+      setUsername(await getUsername())
     });
   
     return unsubscribe; // Cleanup function
