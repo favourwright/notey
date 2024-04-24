@@ -115,6 +115,7 @@ const NewNote = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: null,
+      headerStyle: { backgroundColor: Colors.dark.secondary },
       headerLeft: () => (
         <TouchableOpacity activeOpacity={.8} onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={26} color={Colors.dark.primary} />
@@ -255,18 +256,18 @@ const NewNote = () => {
   })
 
   return (
-    <View className='flex-1 bg-white'>
+    <View className='flex-1 bg-secondary'>
       <StatusBar style='dark' backgroundColor='white' />
       <Seperator className='mt-1' color='bg-gray-500' height='h-0.5' />
       
       <View className='h-full flex-1'>
         <View className='flex-row justify-between px-5 mt-4'>
-          <Text className='text-gray-400'>
+          <Text className='text-gray-500'>
             {format(note.updatedAt, "dd / MM / yy")}
           </Text>
           <Text
             onPress={handleOpenCatModal}
-            className='text-gray-400'>
+            className='text-gray-500'>
             #{selectedCategory?.name || '<uncategorized>'}
           </Text>
         </View>
