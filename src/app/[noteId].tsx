@@ -59,8 +59,8 @@ const NewNote = () => {
       (async ()=>{
         const sample:NoteType = {
           id: uuid.v4() as string,
-          title: 'Sample shopping List',
-          content: sampleGroceryList.join('\n'),
+          title: '',
+          content: '',
           categoryId: '', // will be updated later
           createdAt: new Date(),
           updatedAt: new Date(),
