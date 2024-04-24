@@ -56,32 +56,30 @@ const NewNote = () => {
   // set some guide default values
   useEffect(()=>{
     if(!hasNoteId) {
-      setNote({
-        id: uuid.v4() as string,
-        title: 'Sample shopping List',
-        content: sampleGroceryList.join('\n'),
-        categoryId: '', // will be updated later
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      setSavedNoteState({
-        title: 'Sample shopping List',
-        content: sampleGroceryList.join('\n'),
-      })
-      isDirty.current = true;
-
       (async ()=>{
+        const sample:NoteType = {
+          id: uuid.v4() as string,
+          title: 'Sample shopping List',
+          content: sampleGroceryList.join('\n'),
+          categoryId: '', // will be updated later
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+        isDirty.current = true;
+
         // for categories, first check if user has an actively selected category
         const activeCat = await getActiveCategory()
         if(activeCat) {
           setSelectedcategory(activeCat)
-          setNote((prev)=>({...prev, categoryId: activeCat.id}))
+          setNote({...sample, categoryId: activeCat.id})
+          setSavedNoteState({...sample, categoryId: activeCat.id})
           return
         }
         // if not, set the first category as the active category
         const cats = await getAllCategories()
         if(cats.length) setSelectedcategory(cats[0])
-        setNote((prev)=>({...prev, categoryId: cats[0].id}))
+        setNote({...sample, categoryId: cats[0].id})
+        setSavedNoteState({...sample, categoryId: cats[0].id})
       })()
 
       // focus on content input if noteId is not available
@@ -170,6 +168,7 @@ const NewNote = () => {
 
   // handle saving / updating note
   const handleSaveNote = () => {
+    console.log({note})
     saveNote({
       ...note,
       updatedAt: new Date()
@@ -260,6 +259,10 @@ const NewNote = () => {
     <View className='flex-1 bg-white'>
       <StatusBar style='dark' backgroundColor='white' />
       <Seperator className='mt-1' color='bg-gray-500' height='h-0.5' />
+
+      <Text>
+        {JSON.stringify(note, null, 2)}
+      </Text>
       
       <View className='h-full flex-1'>
         <View className='flex-row justify-between px-5 mt-4'>
