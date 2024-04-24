@@ -92,8 +92,10 @@ const NoteOptionsModal = ({
             <BottomSheetTextInput
               value={username}
               onChangeText={setUsername}
-              onSubmitEditing={()=>{}}
-              placeholder='add new category'
+              onSubmitEditing={handleUsernameSave}
+              maxLength={20}
+              placeholder='name'
+              autoComplete='username'
               enterKeyHint='done'
               className='self-stretch rounded-lg py-4 px-2 text-2xl
               text-white placeholder:text-white/50 border-b border-secondary/50'
