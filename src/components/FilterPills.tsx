@@ -9,6 +9,8 @@ import {
 import { useNavigation } from 'expo-router';
 import Entypo from '@expo/vector-icons/Entypo';
 import { type NoteCategoryType } from '@/store/categories';
+import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Colors from '@/constants/Colors';
 
 type Props = {
   list: NoteCategoryType[]
@@ -66,22 +68,13 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
         keyExtractor={item => item.id}
         onScrollToIndexFailed={()=>{}}
         renderItem={({ item, index }) => (
-          <TouchableHighlight
-            key={index}
-            onPress={() => handleSelection({item, index})}
-            className={`${activeFilter?.id === item.id ?
-              'bg-accent border-transparent' :
-              'bg-transparent border-secondary'
-            } ${isFirstItem(index) && 'ml-5'}
-            rounded-full border`}>
-            <Text
-              className={`${activeFilter?.id === item.id ?
-                'text-primary' :
-                'text-secondary'
-              } text-2xl font-semibold p-3 px-5`}>
-              #{item.name}
-            </Text>
-          </TouchableHighlight>
+          <CategoryItem
+            item={item}
+            index={index}
+            handleSelection={handleSelection}
+            activeFilter={activeFilter}
+            isFirstItem={isFirstItem}
+          />
         )}
         ItemSeparatorComponent={()=><View className='w-5'></View>}
         showsHorizontalScrollIndicator={false}
@@ -91,3 +84,41 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
 }
 
 export default FilterPills
+
+const CategoryItem = (
+  { item, index, handleSelection, activeFilter, isFirstItem} :
+  {
+    item:NoteCategoryType,
+    index:number,
+    handleSelection:(args:{item:NoteCategoryType, index:number})=>void
+    activeFilter:NoteCategoryType|null
+    isFirstItem:(index:number)=>boolean
+  }
+) => {
+  const animatedBtnOnpressStyle = useAnimatedStyle(()=>{
+    return {
+      backgroundColor: activeFilter?.id === item.id ?
+        withSpring(Colors.dark.accent) :
+        withSpring('transparent'),
+      borderColor: activeFilter?.id === item.id ?
+        withSpring('transparent') :
+        withSpring(Colors.dark.secondary),
+    }
+  })
+
+  return (
+    <TouchableHighlight key={index} onPress={() => handleSelection({item, index})}>
+      <Animated.View
+        style={animatedBtnOnpressStyle}
+        className={`${isFirstItem(index) && 'ml-5'} rounded-full border`}>
+        <Text
+          className={`${activeFilter?.id === item.id ?
+            'text-primary' :
+            'text-secondary'
+          } text-2xl font-semibold p-3 px-5`}>
+          #{item.name}
+        </Text>
+      </Animated.View>
+    </TouchableHighlight>
+  )
+}
