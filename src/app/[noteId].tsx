@@ -259,10 +259,6 @@ const NewNote = () => {
     <View className='flex-1 bg-white'>
       <StatusBar style='dark' backgroundColor='white' />
       <Seperator className='mt-1' color='bg-gray-500' height='h-0.5' />
-
-      <Text>
-        {JSON.stringify(note, null, 2)}
-      </Text>
       
       <View className='h-full flex-1'>
         <View className='flex-row justify-between px-5 mt-4'>
