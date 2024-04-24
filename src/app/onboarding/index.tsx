@@ -201,7 +201,6 @@ const Onboarding = () => {
       await setOnboardingSeen()
       // if user wants to seed some sample notes
       const userWantsToSeedSampleNotes = await shouldStartWithSampleNotes()
-      console.log(userWantsToSeedSampleNotes)
       if(userWantsToSeedSampleNotes) await processItems(seedNotes, seedFn)
       replace('/')
       return
