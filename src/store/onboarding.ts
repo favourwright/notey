@@ -11,7 +11,7 @@ export type SlideType = {
 export type OnboardingRecord = {
   isOnboardingCompleted: boolean
   username: string
-  startNewNotesWithTemplate: boolean
+  startWithSampleNotes: boolean
 }
 
 const STORE_KEY = '@notes-app-x/onboarding'
@@ -50,18 +50,18 @@ export const setUsername = async (username:string) => {
   }
 }
 
-export const shouldStartNewNotesWithTemplate = async () => {
+export const shouldStartWithSampleNotes = async () => {
   try {
     const record = await getOnboardingRecords()
-    return record.startNewNotesWithTemplate
+    return record.startWithSampleNotes
   } catch (e) {
     console.log({'error': e});
   }
 }
-export const setStartNewNotesWithTemplate = async (startNewNotesWithTemplate:boolean) => {
+export const setStartNewNotesWithTemplate = async (startWithSampleNotes:boolean) => {
   try {
     const record = await getOnboardingRecords()
-    await AsyncStorage.setItem(STORE_KEY, JSON.stringify({...record, startNewNotesWithTemplate}));
+    await AsyncStorage.setItem(STORE_KEY, JSON.stringify({...record, startWithSampleNotes}));
   } catch (e) {
     console.log({'error': e});
   }
@@ -73,7 +73,7 @@ export const getOnboardingRecords = async ():Promise<OnboardingRecord> => {
     if (value === null) return {
       isOnboardingCompleted: false,
       username: null,
-      startNewNotesWithTemplate: true
+      startWithSampleNotes: true
     } as OnboardingRecord
     return JSON.parse(value) as OnboardingRecord
   } catch(e) {

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { clearAllCategories, getAllCategories, NoteCategoryType, saveCategory } from '@/store/categories'
 import uuid from 'react-native-uuid';
-import { setOnboardingSeen, SlideType, setUsername as setUsernameToStore, getUsername, clearOnboardingRecords, setStartNewNotesWithTemplate, shouldStartNewNotesWithTemplate } from '@/store/onboarding'
+import { setOnboardingSeen, SlideType, setUsername as setUsernameToStore, getUsername, clearOnboardingRecords, setStartNewNotesWithTemplate, shouldStartWithSampleNotes } from '@/store/onboarding'
 import Animated, { useAnimatedRef, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import Slide from '@/components/onboarding/Slide'
 import { StatusBar } from 'expo-status-bar'
@@ -16,6 +16,7 @@ import Toast from 'react-native-root-toast'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { clearAllNotes, NoteType, saveNote, seedNotes } from '@/store/notes'
+import { processItems } from '@/constants/utils'
 
 // add some defaults
 const defaultCategories:NoteCategoryType[] = [
@@ -92,7 +93,7 @@ const slides: SlideType[] = [
       // re-fill choice
       useEffect(()=>{
         (async ()=>{
-          const val = await shouldStartNewNotesWithTemplate()
+          const val = await shouldStartWithSampleNotes()
           setWithTemplate(val)
         })()
       },[])
@@ -110,8 +111,11 @@ const slides: SlideType[] = [
             <View className='flex-row flex-wrap gap-2 items-start'>
               <View><MaterialCommunityIcons name="note-plus" size={28} color="black" /></View>
               <View className='flex-1'>
-                <Text className='text-2xl text-gray-800 font-medium'>New notes</Text>
-                <Text className='text-lg text-gray-500 leading-tight'>Always create new notes with instructional template? (updateable later)</Text>
+                <Text className='text-2xl text-gray-800 font-medium'>Note sample</Text>
+                <Text className='text-lg text-gray-500 leading-tight'>
+                  Should we add sample notes that illustrates what can be done on
+                  {process.env.EXPO_PUBLIC_APP_NAME}?
+                </Text>
               </View>
               <Switch
                 value={withTemplate}
@@ -158,6 +162,20 @@ const Onboarding = () => {
       animated: true
     })
   },[])
+
+  // sample seed function
+  async function seedFn(item:{title:string,content:string}) {
+    const seedNote:NoteType = {
+      id: uuid.v4() as string,
+      title: item.title,
+      content: item.content,
+      categoryId: '',
+      createdAt: new Date,
+      updatedAt: new Date,
+    }
+    await saveNote(seedNote)
+  }
+
   const handleNext = useCallback(async (finished:boolean) => {
     const username = await getUsername()
     if(!username) {
@@ -181,6 +199,10 @@ const Onboarding = () => {
 
     if(finished) {
       await setOnboardingSeen()
+      // if user wants to seed some sample notes
+      const userWantsToSeedSampleNotes = await shouldStartWithSampleNotes()
+      console.log(userWantsToSeedSampleNotes)
+      if(userWantsToSeedSampleNotes) await processItems(seedNotes, seedFn)
       replace('/')
       return
     }
@@ -202,30 +224,6 @@ const Onboarding = () => {
       flatlistIndex.value = viewableItems[0].index
     }
   }
-
-  // seed some notes
-  async function processItems(items:{title:string,content:string}[], asyncFunction:Function) {
-    for (const item of items) {
-      await asyncFunction(item);
-    }
-  }
-  async function seedFn(item:{title:string,content:string}) {
-    const seedNote:NoteType = {
-      id: uuid.v4() as string,
-      title: item.title,
-      content: item.content,
-      categoryId: '',
-      createdAt: new Date,
-      updatedAt: new Date,
-    }
-    await saveNote(seedNote)
-  }
-  useEffect(()=>{
-    (async ()=>{
-      await clearAllNotes()
-      processItems(seedNotes, seedFn);
-    })()
-  }, [])
 
   return (
     <View className='flex-1 items-center relative'>
