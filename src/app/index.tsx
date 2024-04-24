@@ -131,7 +131,8 @@ export default function Home() {
               </Text></>}
               {selectedCategory && <><MaterialCommunityIcons name='spider-web' size={80} className='!text-white/10' />
               <Text className='text-2xl text-white/20 text-center'>
-                there are no notes in the category <Text className='text-white/40'>{selectedCategory.name}</Text>
+                click the <AntDesign name='pluscircle' size={20} className='!text-white/20' /> button to add a new note in
+                <Text className='text-white/40'> {selectedCategory.name}</Text> category
               </Text></>}
             </View>
           )}

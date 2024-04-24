@@ -168,7 +168,6 @@ const NewNote = () => {
 
   // handle saving / updating note
   const handleSaveNote = () => {
-    console.log({note})
     saveNote({
       ...note,
       updatedAt: new Date()
