@@ -1,13 +1,16 @@
-import { Link, useNavigation } from 'expo-router';
+import { Link, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather';
 import Colors from '@/constants/Colors';
 import { StatusBar } from 'expo-status-bar';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { getUsername } from '@/store/onboarding';
+import { clearOnboardingRecords, getUsername } from '@/store/onboarding';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Entypo from '@expo/vector-icons/Entypo';
+import { clearAllNotes } from '@/store/notes';
+import { clearAllCategories } from '@/store/categories';
+import router from 'expo-router';
 
 type Props = {
 
@@ -15,6 +18,7 @@ type Props = {
 const index = ({ }: Props) => {
   const navigation = useNavigation();
   const { bottom } = useSafeAreaInsets()
+  const router = useRouter()
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -51,6 +55,13 @@ const index = ({ }: Props) => {
     })()
   },[])
 
+  const clearAllData = async () => {
+    await clearAllNotes()
+    await clearAllCategories()
+    await clearOnboardingRecords()
+    router.replace('/onboarding')
+  }
+
   return (
     <View className='flex-1 bg-primary'>
       <StatusBar style="light" />
@@ -84,6 +95,18 @@ const index = ({ }: Props) => {
               className='opacity-70'
             />
           </View>
+
+          <Pressable
+            onPress={clearAllData}
+            className='p-5 py-4 bg-red-500/5 rounded-2xl border border-secondary/10
+            flex-row justify-between'>
+            <Text className='text-red-500/70 text-2xl'>clear all data</Text>
+            <Feather
+              name="trash-2" size={24}
+              color='red'
+              className='opacity-70'
+            />
+          </Pressable>
         </View>
 
         <View className='flex-row justify-center items-cente gap-1'>
