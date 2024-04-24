@@ -129,62 +129,62 @@ export const processNoteContent = (content:string) => {
 }
 
 export const seedNotes = [
-  {
-    "title": "Brain Dump",
-    "content": "Jot down anything and everything swirling in your head. Ideas, worries, grocery list - get it all out!"
-  },
-  {
-    "title": "Meeting Minutes - April 24",
-    "content": "Capture key points, action items, and next steps from your meeting today."
-  },
-  {
-    "title": "Book Ideas",
-    "content": "Spark a new story! Write down plot twists, character sketches, or intriguing settings."
-  },
-  {
-    "title": "Travel Itinerary - [Destination]",
-    "content": "Plan your dream trip! List must-see sights, research restaurants, and jot down transportation details."
-  },
-  {
-    "title": "Movie Night Picks",
-    "content": "Feeling indecisive? Create a list of movies you or friends want to watch."
-  },
-  {
-    "title": "DIY Project: [Project Name]",
-    "content": "Unleash your inner crafter! Outline steps, materials needed, and inspiration sources."
-  },
-  {
-    "title": "Fitness Goals",
-    "content": "Set your sights on a healthier you! Write down goals, track progress, and celebrate milestones."
-  },
-  {
-    "title": "Gratitude List",
-    "content": "Take a moment to appreciate the good things! List things you're grateful for, big or small."
-  },
-  {
-    "title": "Birthday Ideas - [Name]",
-    "content": "Plan a memorable celebration! Brainstorm party themes, gift ideas, or fun activities."
-  },
-  {
-    "title": "Language Learning - [Language]",
-    "content": "Boost your vocabulary! Jot down new words you learn, create practice sentences, or track your progress."
-  },
-  {
-    "title": "Song Lyrics (Unfinished)",
-    "content": "Unleash your inner musician! Pen down lyrics, melodic ideas, or a theme for your next song."
-  },
-  {
-    "title": "Quote of the Day",
-    "content": "Find inspiration! Write down a quote that resonated with you and why it matters."
-  },
-  {
-    "title": "Restaurant Reviews",
-    "content": "Become a food critic! Rate restaurants you've visited, noting food quality, service, and ambiance."
-  },
-  {
-    "title": "Gift Ideas - [Occasion]",
-    "content": "Never be caught empty-handed again! Compile gift ideas for upcoming birthdays, holidays, or special occasions."
-  },
+  // {
+  //   "title": "Brain Dump",
+  //   "content": "Jot down anything and everything swirling in your head. Ideas, worries, grocery list - get it all out!"
+  // },
+  // {
+  //   "title": "Meeting Minutes - April 24",
+  //   "content": "Capture key points, action items, and next steps from your meeting today."
+  // },
+  // {
+  //   "title": "Book Ideas",
+  //   "content": "Spark a new story! Write down plot twists, character sketches, or intriguing settings."
+  // },
+  // {
+  //   "title": "Travel Itinerary - [Destination]",
+  //   "content": "Plan your dream trip! List must-see sights, research restaurants, and jot down transportation details."
+  // },
+  // {
+  //   "title": "Movie Night Picks",
+  //   "content": "Feeling indecisive? Create a list of movies you or friends want to watch."
+  // },
+  // {
+  //   "title": "DIY Project: [Project Name]",
+  //   "content": "Unleash your inner crafter! Outline steps, materials needed, and inspiration sources."
+  // },
+  // {
+  //   "title": "Fitness Goals",
+  //   "content": "Set your sights on a healthier you! Write down goals, track progress, and celebrate milestones."
+  // },
+  // {
+  //   "title": "Gratitude List",
+  //   "content": "Take a moment to appreciate the good things! List things you're grateful for, big or small."
+  // },
+  // {
+  //   "title": "Birthday Ideas - [Name]",
+  //   "content": "Plan a memorable celebration! Brainstorm party themes, gift ideas, or fun activities."
+  // },
+  // {
+  //   "title": "Language Learning - [Language]",
+  //   "content": "Boost your vocabulary! Jot down new words you learn, create practice sentences, or track your progress."
+  // },
+  // {
+  //   "title": "Song Lyrics (Unfinished)",
+  //   "content": "Unleash your inner musician! Pen down lyrics, melodic ideas, or a theme for your next song."
+  // },
+  // {
+  //   "title": "Quote of the Day",
+  //   "content": "Find inspiration! Write down a quote that resonated with you and why it matters."
+  // },
+  // {
+  //   "title": "Restaurant Reviews",
+  //   "content": "Become a food critic! Rate restaurants you've visited, noting food quality, service, and ambiance."
+  // },
+  // {
+  //   "title": "Gift Ideas - [Occasion]",
+  //   "content": "Never be caught empty-handed again! Compile gift ideas for upcoming birthdays, holidays, or special occasions."
+  // },
   {
     "title": "Tech Wishlist",
     "content": "Fuel your gadget lust! List the latest tech gadgets you're eyeing and research their features."

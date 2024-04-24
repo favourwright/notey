@@ -57,8 +57,8 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
     <View className='flex-row-reverse items-center'>
       <Pressable
         onPress={!!onAddBtnPress && onAddBtnPress}
-        className='mx-3 aspect-square items-center justify-center border-2 border-white rounded-full'>
-        <Entypo name='plus' size={23} className='!text-white' />
+        className='mx-3 mr-4 aspect-square items-center justify-center border-2 border-white rounded-full'>
+        <Entypo name='plus' size={22} className='!text-white' />
       </Pressable>
 
       <FlatList
