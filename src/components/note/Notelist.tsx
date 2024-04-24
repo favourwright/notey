@@ -3,21 +3,20 @@ import NoteItem from './NoteItem'
 import { NoteType } from '@/store/notes'
 import Animated, { CurvedTransition, FadeInDown, FadeInUp } from 'react-native-reanimated'
 import Seperator from '../Seperator'
+import { NoteCategoryType } from '@/store/categories'
+import { FlatList } from 'react-native'
 
 type Props = {
   notes: NoteType[]
   onShowOptions: (note: NoteType) => void
 }
 
-const transition = CurvedTransition.createInstance()
-
 const Notelist = ({ notes, onShowOptions }:Props) => {
   return (
-    <Animated.FlatList
+    <FlatList
       data={notes}
       scrollEnabled={false}
       keyExtractor={item => item.id}
-      itemLayoutAnimation={transition}
       renderItem={({ item, index }) =>(
         <Animated.View
           entering={FadeInUp.delay(index*10)}
