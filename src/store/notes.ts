@@ -207,10 +207,6 @@ export const seedNotes = [
   },
   {
     "title": "Monday's grocery list",
-    "content": `Meat 🍖 - ₦3,000
-- Vegetables 🥦 - #500
-● Cucumber 🥒 - $1,000
-Beans X4 - N400
-    `
+    "content": sampleTemplate.join("\n")
   }
 ]
