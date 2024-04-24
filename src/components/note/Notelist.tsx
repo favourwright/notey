@@ -1,9 +1,8 @@
 import React from 'react'
 import NoteItem from './NoteItem'
 import { NoteType } from '@/store/notes'
-import Animated, { CurvedTransition, FadeInDown, FadeInUp } from 'react-native-reanimated'
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated'
 import Seperator from '../Seperator'
-import { NoteCategoryType } from '@/store/categories'
 import { FlatList } from 'react-native'
 
 type Props = {
