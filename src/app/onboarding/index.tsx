@@ -15,6 +15,7 @@ import { debounce } from '@/constants/debounce'
 import Toast from 'react-native-root-toast'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { clearAllNotes, NoteType, saveNote, seedNotes } from '@/store/notes'
 
 // add some defaults
 const defaultCategories:NoteCategoryType[] = [
@@ -201,6 +202,30 @@ const Onboarding = () => {
       flatlistIndex.value = viewableItems[0].index
     }
   }
+
+  // seed some notes
+  async function processItems(items:{title:string,content:string}[], asyncFunction:Function) {
+    for (const item of items) {
+      await asyncFunction(item);
+    }
+  }
+  async function seedFn(item:{title:string,content:string}) {
+    const seedNote:NoteType = {
+      id: uuid.v4() as string,
+      title: item.title,
+      content: item.content,
+      categoryId: '',
+      createdAt: new Date,
+      updatedAt: new Date,
+    }
+    await saveNote(seedNote)
+  }
+  useEffect(()=>{
+    (async ()=>{
+      await clearAllNotes()
+      processItems(seedNotes, seedFn);
+    })()
+  }, [])
 
   return (
     <View className='flex-1 items-center relative'>
