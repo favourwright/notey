@@ -202,11 +202,15 @@ export const seedNotes = [
     "content": "Brainstorm a website's layout! Sketch ideas, color schemes, and user interface elements."
   },
   {
-    "title": "Learning Project - [Topic]",
-    "content": "Deepen your knowledge! Take notes on a topic that piques your interest, summarizing key points and takeaways."
-  },
-  {
     "title": "Random Dreams",
     "content": "Decode your subconscious! Write down interesting or strange dreams you have and analyze their potential meaning."
+  },
+  {
+    "title": "Monday's grocery list",
+    "content": `Meat 🍖 - ₦3,000
+- Vegetables 🥦 - #500
+● Cucumber 🥒 - $1,000
+Beans X4 - N400
+    `
   }
 ]
