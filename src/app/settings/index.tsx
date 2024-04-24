@@ -1,6 +1,6 @@
 import { Link, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather';
 import Colors from '@/constants/Colors';
 import { StatusBar } from 'expo-status-bar';
@@ -10,6 +10,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Entypo from '@expo/vector-icons/Entypo';
 import { clearAllNotes } from '@/store/notes';
 import { clearAllCategories } from '@/store/categories';
+import EditUsernameModal from '@/components/EditUsernameModal';
+import * as Haptics from 'expo-haptics';
 
 type Props = {
 
@@ -18,6 +20,7 @@ const index = ({ }: Props) => {
   const navigation = useNavigation();
   const { bottom } = useSafeAreaInsets()
   const router = useRouter()
+  const usernameModal = useState(false)
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -48,17 +51,33 @@ const index = ({ }: Props) => {
   })
 
   const [username, setUsername] = useState('')
-  useEffect(()=>{
-    (async ()=>{
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
       setUsername(await getUsername())
-    })()
-  },[])
+    });
+  
+    return unsubscribe; // Cleanup function
+  }, [navigation.isFocused]); // Dependency array
 
   const clearAllData = async () => {
     await clearAllNotes()
     await clearAllCategories()
     await clearOnboardingRecords()
     router.replace('/onboarding')
+  }
+
+  const handleClearData = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    Alert.alert('Sure you want to clear all your data?', null, [
+      {
+        text: 'Cancel',
+        onPress: () => {},
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: async () => {
+        clearAllData()
+      }},
+    ]);
   }
 
   return (
@@ -77,7 +96,8 @@ const index = ({ }: Props) => {
         style={{paddingBottom:bottom}}
         className='flex-1 bg-secondary/[0.01] rounded-t-3xl pt-5'>
         <View className='flex-1 gap-4 px-5'>
-          <View
+          <Pressable
+            onPress={()=>usernameModal[1](true)}
             className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10
             flex-row justify-between'>
             <Text className='text-secondary/80 text-2xl'>username</Text>
@@ -86,9 +106,9 @@ const index = ({ }: Props) => {
               color={Colors.dark.secondary}
               className='opacity-70'
             />
-          </View>
+          </Pressable>
 
-          <View
+          {/* <View
             className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10
             flex-row justify-between'>
             <Text className='text-secondary/80 text-2xl'>note preference</Text>
@@ -97,10 +117,10 @@ const index = ({ }: Props) => {
               color={Colors.dark.secondary}
               className='opacity-70'
             />
-          </View>
+          </View> */}
 
           <Pressable
-            onPress={clearAllData}
+            onPress={handleClearData}
             className='p-5 py-4 bg-red-500/5 rounded-2xl border border-secondary/10
             flex-row justify-between'>
             <Text className='text-red-500/70 text-2xl'>clear all data</Text>
@@ -124,6 +144,8 @@ const index = ({ }: Props) => {
           </Link>
         </View>
       </View>
+
+      <EditUsernameModal isOpen={usernameModal} onSave={setUsername} />
     </View>
   )
 }
