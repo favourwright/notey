@@ -132,7 +132,7 @@ const index = ({ }: Props) => {
           </Pressable>
         </View>
 
-        <View className='flex-row justify-center items-cente gap-1'>
+        <View className='flex-row justify-center items-cente gap-1 mb-2'>
           <Text className='text-secondary/30'>
             with <Entypo name="heart" size={16} color={Colors.dark.accent} /> by
           </Text>

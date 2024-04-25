@@ -107,10 +107,12 @@ const CategoryItem = (
   })
 
   return (
-    <TouchableHighlight key={index} onPress={() => handleSelection({item, index})}>
+    <TouchableHighlight
+      key={index} onPress={() => handleSelection({item, index})}
+      className={`rounded-full ${isFirstItem(index) && 'ml-5'} `}>
       <Animated.View
         style={animatedBtnOnpressStyle}
-        className={`${isFirstItem(index) && 'ml-5'} rounded-full border`}>
+        className='rounded-full border'>
         <Text
           className={`${activeFilter?.id === item.id ?
             'text-primary' :
