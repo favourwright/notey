@@ -114,6 +114,14 @@ const NewNote = () => {
     setDetectedCurrencySymbol(currencySymbol)
   }, [note.content])
   
+  const isDirty = useRef<boolean>()
+  const isTitleDirty = useRef<boolean>()
+  const isActiveCategoryDirty = useRef<boolean>()
+  const isSomethingDirty = isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
+  const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
+    return oldValue !== newValue
+  }
+
   useLayoutEffect(() => {
     navigation.setOptions({
       title: null,
@@ -131,15 +139,7 @@ const NewNote = () => {
       />,
       headerShadowVisible: false,
     })
-  }, [navigation, note.title, note.content, storedNoteId])
-
-  const isDirty = useRef<boolean>()
-  const isTitleDirty = useRef<boolean>()
-  const isActiveCategoryDirty = useRef<boolean>()
-  const isSomethingDirty = isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
-  const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
-    return oldValue !== newValue
-  }
+  }, [navigation, note.title, note.content, storedNoteId, isSomethingDirty])
 
   const handleInputChange = ({field,value}:{field:'title'|'content',value:string}) => {
     if(field==='title') setNote({...note, title: value})
@@ -285,7 +285,7 @@ const NewNote = () => {
         <KeyboardAvoidingView
           enabled behavior='padding'
           className='flex-1'
-          keyboardVerticalOffset={headerHeight}
+          keyboardVerticalOffset={headerHeight+45}
         >
           <ScrollView className='flex-1 flex-row'>
             <TextInput
