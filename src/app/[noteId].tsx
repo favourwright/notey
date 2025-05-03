@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions, KeyboardAvoidingView } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
@@ -10,7 +10,6 @@ import {
   deleteNote,
   type NoteType,
   processNoteContent,
-  sampleTemplate as sampleGroceryList
 } from '@/store/notes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Seperator from '@/components/Seperator';
@@ -24,6 +23,8 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType } from '@/store/categories';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useHeaderHeight } from '@react-navigation/elements'
+import HeaderRight from '@/components/note/header/HeaderRight';
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -32,6 +33,7 @@ const NewNote = () => {
   const [storedNoteId, setStoredNoteId] = useState<string|undefined>(undefined)
   const { bottom } = useSafeAreaInsets()
   const { width:screenWidth } = useWindowDimensions()
+  const headerHeight = useHeaderHeight()
 
   const [note, setNote] = useState<NoteType>({
     id: '',
@@ -121,19 +123,12 @@ const NewNote = () => {
           <Feather name="arrow-left" size={26} color={Colors.dark.primary} />
         </TouchableOpacity>
       ),
-      headerRight: () => (
-        <View className='w-28 flex-row justify-end'>
-          <TouchableOpacity
-            activeOpacity={.8}
-            onPress={
-              ()=>hasNoteId || storedNoteId ?
-                handleDeleteNote(storedNoteId!) :
-                handleSaveNote()
-            }>
-            <Text className='text-2xl'>{!hasNoteId && !storedNoteId  ? 'save' : 'delete'}</Text>
-          </TouchableOpacity>
-        </View>
-      ),
+      headerRight: () => <HeaderRight
+        noteStored={hasNoteId || !!storedNoteId}
+        noteDirty={isSomethingDirty}
+        handleSaveNote={handleSaveNote}
+        handleDeleteNote={()=>handleDeleteNote(storedNoteId!)}
+      />,
       headerShadowVisible: false,
     })
   }, [navigation, note.title, note.content, storedNoteId])
@@ -141,9 +136,7 @@ const NewNote = () => {
   const isDirty = useRef<boolean>()
   const isTitleDirty = useRef<boolean>()
   const isActiveCategoryDirty = useRef<boolean>()
-  const isSomethingIsDirty = () => {
-    return isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
-  }
+  const isSomethingDirty = isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
   const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
     return oldValue !== newValue
   }
@@ -229,7 +222,7 @@ const NewNote = () => {
 
   const isDirtySharedVal = useSharedValue(false)
   useEffect(()=>{
-    isDirtySharedVal.value = isSomethingIsDirty()
+    isDirtySharedVal.value = isSomethingDirty
   },[isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
 
   const animatedBtnStyle = useAnimatedStyle(()=>{
@@ -289,17 +282,26 @@ const NewNote = () => {
           </Pressable>}
         </View>
 
-        <ScrollView className='flex-1 flex-row'>
-          <TextInput
-            ref={contentInputRef}
-            value={note.content}
-            onChangeText={(value) => handleInputChange({field:'content', value})}
-            className='text-2xl text-gray-600 mt-2 flex-1 px-5 w-full'
-            style={{textAlignVertical: "top",paddingBottom:bottom, width:screenWidth}}
-            multiline={true}
-            numberOfLines={1}
-          />
-        </ScrollView>
+        <KeyboardAvoidingView
+          enabled behavior='padding'
+          className='flex-1'
+          keyboardVerticalOffset={headerHeight}
+        >
+          <ScrollView className='flex-1 flex-row'>
+            <TextInput
+              ref={contentInputRef}
+              value={note.content}
+              onChangeText={(value) => handleInputChange({field:'content', value})}
+              className='text-2xl text-gray-600 mt-2 flex-1 px-5 w-full'
+              style={{
+                textAlignVertical: "top",
+                paddingBottom: bottom,
+                width: screenWidth,
+              }}
+              multiline
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
 
         <Animated.View
           style={animatedBtnStyle}
