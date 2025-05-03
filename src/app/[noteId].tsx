@@ -10,7 +10,6 @@ import {
   deleteNote,
   type NoteType,
   processNoteContent,
-  sampleTemplate as sampleGroceryList
 } from '@/store/notes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Seperator from '@/components/Seperator';
@@ -25,6 +24,7 @@ import * as Haptics from 'expo-haptics';
 import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType } from '@/store/categories';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useHeaderHeight } from '@react-navigation/elements'
+import HeaderRight from '@/components/note/header/HeaderRight';
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -123,19 +123,12 @@ const NewNote = () => {
           <Feather name="arrow-left" size={26} color={Colors.dark.primary} />
         </TouchableOpacity>
       ),
-      headerRight: () => (
-        <View className='w-28 flex-row justify-end'>
-          <TouchableOpacity
-            activeOpacity={.8}
-            onPress={
-              ()=>hasNoteId || storedNoteId ?
-                handleDeleteNote(storedNoteId!) :
-                handleSaveNote()
-            }>
-            <Text className='text-2xl'>{!hasNoteId && !storedNoteId  ? 'save' : 'delete'}</Text>
-          </TouchableOpacity>
-        </View>
-      ),
+      headerRight: () => <HeaderRight
+        noteStored={hasNoteId || !!storedNoteId}
+        noteDirty={isSomethingDirty}
+        handleSaveNote={handleSaveNote}
+        handleDeleteNote={()=>handleDeleteNote(storedNoteId!)}
+      />,
       headerShadowVisible: false,
     })
   }, [navigation, note.title, note.content, storedNoteId])
@@ -143,9 +136,7 @@ const NewNote = () => {
   const isDirty = useRef<boolean>()
   const isTitleDirty = useRef<boolean>()
   const isActiveCategoryDirty = useRef<boolean>()
-  const isSomethingIsDirty = () => {
-    return isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
-  }
+  const isSomethingDirty = isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
   const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
     return oldValue !== newValue
   }
@@ -231,7 +222,7 @@ const NewNote = () => {
 
   const isDirtySharedVal = useSharedValue(false)
   useEffect(()=>{
-    isDirtySharedVal.value = isSomethingIsDirty()
+    isDirtySharedVal.value = isSomethingDirty
   },[isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
 
   const animatedBtnStyle = useAnimatedStyle(()=>{

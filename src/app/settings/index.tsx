@@ -100,24 +100,13 @@ const index = ({ }: Props) => {
             onPress={()=>usernameModal[1](true)}
             className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10
             flex-row justify-between'>
-            <Text className='text-secondary/80 text-2xl'>username</Text>
+            <Text className='text-secondary/80 text-2xl'>{username}</Text>
             <Feather
               name="edit-3" size={24}
               color={Colors.dark.secondary}
               className='opacity-70'
             />
           </Pressable>
-
-          {/* <View
-            className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10
-            flex-row justify-between'>
-            <Text className='text-secondary/80 text-2xl'>note preference</Text>
-            <Entypo
-              name="chevron-right" size={24}
-              color={Colors.dark.secondary}
-              className='opacity-70'
-            />
-          </View> */}
 
           <Pressable
             onPress={handleClearData}
@@ -173,7 +162,7 @@ const RotatingInitial = ({ initial }: { initial: string }) => {
       <View className='h-40 w-40 relative justify-center items-center'>
         <Animated.View
           style={[rotationAnimTextStyle, StyleSheet.absoluteFill]}
-          className='bg-accent/20 rounded-[40px]'>
+          className='bg-white/5 rounded-[40px]'>
         </Animated.View>
         <Animated.View
           style={[rotationAnimContainerStyle, StyleSheet.absoluteFill]}

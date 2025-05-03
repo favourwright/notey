@@ -22,6 +22,7 @@ export default function AppLayout() {
               //   borderTopColor: Colors.dark.primary,
               //   borderTopWidth: 1,
               // },
+              title: null,
               headerRight: () => (
                 <TouchableOpacity activeOpacity={.8} onPress={() => navigate('/undefined')}>
                   <AntDesign name="pluscircle" size={24} color={Colors.dark.secondary} />
