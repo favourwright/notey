@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions, KeyboardAvoidingView } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
@@ -24,6 +24,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType } from '@/store/categories';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useHeaderHeight } from '@react-navigation/elements'
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -32,6 +33,7 @@ const NewNote = () => {
   const [storedNoteId, setStoredNoteId] = useState<string|undefined>(undefined)
   const { bottom } = useSafeAreaInsets()
   const { width:screenWidth } = useWindowDimensions()
+  const headerHeight = useHeaderHeight()
 
   const [note, setNote] = useState<NoteType>({
     id: '',
@@ -289,17 +291,26 @@ const NewNote = () => {
           </Pressable>}
         </View>
 
-        <ScrollView className='flex-1 flex-row'>
-          <TextInput
-            ref={contentInputRef}
-            value={note.content}
-            onChangeText={(value) => handleInputChange({field:'content', value})}
-            className='text-2xl text-gray-600 mt-2 flex-1 px-5 w-full'
-            style={{textAlignVertical: "top",paddingBottom:bottom, width:screenWidth}}
-            multiline={true}
-            numberOfLines={1}
-          />
-        </ScrollView>
+        <KeyboardAvoidingView
+          enabled behavior='padding'
+          className='flex-1'
+          keyboardVerticalOffset={headerHeight}
+        >
+          <ScrollView className='flex-1 flex-row'>
+            <TextInput
+              ref={contentInputRef}
+              value={note.content}
+              onChangeText={(value) => handleInputChange({field:'content', value})}
+              className='text-2xl text-gray-600 mt-2 flex-1 px-5 w-full'
+              style={{
+                textAlignVertical: "top",
+                paddingBottom: bottom,
+                width: screenWidth,
+              }}
+              multiline
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
 
         <Animated.View
           style={animatedBtnStyle}
