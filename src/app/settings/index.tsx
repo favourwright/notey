@@ -121,10 +121,10 @@ const index = ({ }: Props) => {
           </Pressable>
         </View>
 
-        <View className='flex-row justify-center items-cente gap-1 mb-2'>
-          <Text className='text-secondary/30'>
-            with <Entypo name="heart" size={16} color={Colors.dark.accent} /> by
-          </Text>
+        <View className='flex-row justify-center items-center gap-1 mb-3'>
+          <Text className='text-secondary/30'>with</Text>
+          <Entypo name="heart" size={16} className='!text-secondary/30' />
+          <Text className='text-secondary/30'>by</Text>
           <Link
             suppressHighlighting
             className="text-center text-secondary/30"
