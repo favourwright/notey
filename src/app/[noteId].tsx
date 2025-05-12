@@ -26,7 +26,6 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 import { useHeaderHeight } from '@react-navigation/elements'
 import HeaderRight from '@/components/note/header/HeaderRight';
 import { getAutoSave as getAutoSaveNotesPreference } from '@/store/notes';
-import { useDebounce } from '@/constants/debounce'
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -36,6 +35,26 @@ const NewNote = () => {
   const { bottom } = useSafeAreaInsets()
   const { width:screenWidth } = useWindowDimensions()
   const headerHeight = useHeaderHeight()
+
+  function useDebounce<T extends (...args: any[]) => void>(
+    func: T,
+    wait = 500
+  ): T {
+    const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+      return () => {
+        if (timeout.current) clearTimeout(timeout.current);
+      };
+    }, []);
+
+    return ((...args: any[]) => {
+      if (timeout.current) clearTimeout(timeout.current);
+      timeout.current = setTimeout(() => {
+        func(...args);
+      }, wait);
+    }) as T;
+  }
 
   const [note, setNote] = useState<NoteType>({
     id: '',
@@ -147,31 +166,31 @@ const NewNote = () => {
   }, [navigation, note.title, note.content, storedNoteId, isSomethingDirty])
 
   const handleInputChange = ({field,value}:{field:'title'|'content',value:string}) => {
-    if(field==='title') setNote({...note, title: value})
-    if(field==='content') setNote({...note, content: value})
+    setNote(prev => {
+      const updated = { ...prev, [field]: value }
 
-    // check dirtiness
-    if(field==='content') {
-      isDirty.current = checkIfDirty({
-        oldValue: savedNoteState.content,
-        newValue: value
-      })
-    }
-    if(field==='title') {
-      isTitleDirty.current = checkIfDirty({
-        oldValue: savedNoteState.title,
-        newValue: value
-      })
-    }
+      // Check dirtiness based on savedNoteState
+      if (field === 'title') {
+        isTitleDirty.current = checkIfDirty({
+          oldValue: savedNoteState.title ?? '',
+          newValue: value
+        })
+      }
+      if (field === 'content') {
+        isDirty.current = checkIfDirty({
+          oldValue: savedNoteState.content ?? '',
+          newValue: value
+        })
+      }
+
+      return updated
+    })
     debounceAutoSave()
   }
 
   // handle saving / updating note
-  const handleSaveNote = () => {
-    saveNote({
-      ...note,
-      updatedAt: new Date()
-    })
+  const handleSaveNote = useCallback(() => {
+    saveNote({ ...note, updatedAt: new Date() })
     setSavedNoteState({
       title: note.title,
       content: note.content,
@@ -181,21 +200,21 @@ const NewNote = () => {
     isTitleDirty.current = false
     isActiveCategoryDirty.current = false
     setStoredNoteId(note.id)
-  }
+  }, [note])
 
   // handle auto-saving
   const [isSaving, setIsSaving] = useState(false);
-  const autoSave = async () => {
+  const autoSave = useCallback(async () => {
     const autoSaveOn = await getAutoSaveNotesPreference()
-    if(!autoSaveOn) return
+    if (!autoSaveOn) return
 
     setIsSaving(true)
     await new Promise(resolve => setTimeout(resolve, 3000))
     handleSaveNote()
     console.log('auto saved')
     setIsSaving(false)
-  }
-  const debounceAutoSave = useCallback(useDebounce(autoSave), [note]);
+  }, [handleSaveNote])
+  const debounceAutoSave = useDebounce(autoSave, 1000)
 
   const handleDeleteNote = async (id:string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
