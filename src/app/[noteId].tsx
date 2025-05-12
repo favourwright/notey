@@ -306,7 +306,7 @@ const NewNote = () => {
         <KeyboardAvoidingView
           enabled behavior='padding'
           className='flex-1'
-          keyboardVerticalOffset={headerHeight+45}
+          keyboardVerticalOffset={headerHeight+20}
         >
           <ScrollView className='flex-1 flex-row'>
             <TextInput
