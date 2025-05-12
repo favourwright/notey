@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCategoryById, type NoteCategoryType } from './categories';
 
 const STORE_KEY = '@notes-app-x/notes'
+export const AUTO_SAVE_STATE_KEY = '@notes-app-x/autosave'
 export type NoteType = {
   id: string,
   title: string,
@@ -49,6 +50,24 @@ export const getNoteById = async (noteId:string) => {
     return {...note, category}
   } catch (e) {
     console.log({GetNoteByIdError: e})
+  }
+}
+
+export const setAutoSave = async (autoSaveEnabled:boolean) => {
+  try {
+    await AsyncStorage.setItem(AUTO_SAVE_STATE_KEY, JSON.stringify({autoSaveEnabled}))
+  } catch (e) {
+    console.log({SetAutoSaveError: e})
+  }
+}
+
+export const getAutoSave = async () => {
+  try {
+    const value = await AsyncStorage.getItem(AUTO_SAVE_STATE_KEY);
+    if (value === null) return false
+    return JSON.parse(value).autoSaveEnabled
+  } catch (e) {
+    console.log({GetAutoSaveError: e})
   }
 }
 

@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions, KeyboardAvoidingView } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { format } from "date-fns";
@@ -25,6 +25,7 @@ import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryT
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useHeaderHeight } from '@react-navigation/elements'
 import HeaderRight from '@/components/note/header/HeaderRight';
+import { getAutoSave as getAutoSaveNotesPreference } from '@/store/notes';
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -34,6 +35,26 @@ const NewNote = () => {
   const { bottom } = useSafeAreaInsets()
   const { width:screenWidth } = useWindowDimensions()
   const headerHeight = useHeaderHeight()
+
+  function useDebounce<T extends (...args: any[]) => void>(
+    func: T,
+    wait = 500
+  ): T {
+    const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+      return () => {
+        if (timeout.current) clearTimeout(timeout.current);
+      };
+    }, []);
+
+    return ((...args: any[]) => {
+      if (timeout.current) clearTimeout(timeout.current);
+      timeout.current = setTimeout(() => {
+        func(...args);
+      }, wait);
+    }) as T;
+  }
 
   const [note, setNote] = useState<NoteType>({
     id: '',
@@ -117,7 +138,10 @@ const NewNote = () => {
   const isDirty = useRef<boolean>()
   const isTitleDirty = useRef<boolean>()
   const isActiveCategoryDirty = useRef<boolean>()
-  const isSomethingDirty = isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
+  const isSomethingDirty = useMemo(() => {
+    return isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
+  }, [isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
+
   const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
     return oldValue !== newValue
   }
@@ -142,30 +166,31 @@ const NewNote = () => {
   }, [navigation, note.title, note.content, storedNoteId, isSomethingDirty])
 
   const handleInputChange = ({field,value}:{field:'title'|'content',value:string}) => {
-    if(field==='title') setNote({...note, title: value})
-    if(field==='content') setNote({...note, content: value})
+    setNote(prev => {
+      const updated = { ...prev, [field]: value }
 
-    // check dirtiness
-    if(field==='content') {
-      isDirty.current = checkIfDirty({
-        oldValue: savedNoteState.content,
-        newValue: value
-      })
-    }
-    if(field==='title') {
-      isTitleDirty.current = checkIfDirty({
-        oldValue: savedNoteState.title,
-        newValue: value
-      })
-    }
+      // Check dirtiness based on savedNoteState
+      if (field === 'title') {
+        isTitleDirty.current = checkIfDirty({
+          oldValue: savedNoteState.title ?? '',
+          newValue: value
+        })
+      }
+      if (field === 'content') {
+        isDirty.current = checkIfDirty({
+          oldValue: savedNoteState.content ?? '',
+          newValue: value
+        })
+      }
+
+      debounceAutoSave(updated)
+      return updated
+    })
   }
 
   // handle saving / updating note
-  const handleSaveNote = () => {
-    saveNote({
-      ...note,
-      updatedAt: new Date()
-    })
+  const handleSaveNote = useCallback(() => {
+    saveNote({ ...note, updatedAt: new Date() })
     setSavedNoteState({
       title: note.title,
       content: note.content,
@@ -175,7 +200,34 @@ const NewNote = () => {
     isTitleDirty.current = false
     isActiveCategoryDirty.current = false
     setStoredNoteId(note.id)
-  }
+  }, [note])
+
+  // handle auto-saving
+  const [isSaving, setIsSaving] = useState(false);
+  const autoSave = useCallback(async (noteToSave: NoteType) => {
+    const autoSaveOn = await getAutoSaveNotesPreference()
+    if (!autoSaveOn) return
+
+    setIsSaving(true)
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    saveNote({ ...noteToSave, updatedAt: new Date() })
+    setSavedNoteState({
+      title: noteToSave.title,
+      content: noteToSave.content,
+      categoryId: noteToSave.categoryId,
+    })
+    isDirty.current = false
+    isTitleDirty.current = false
+    isActiveCategoryDirty.current = false
+
+    // Force a re-render to update the UI and animated values
+    setNote(prevNote => ({ ...prevNote }))
+
+    setStoredNoteId(noteToSave.id)
+    setIsSaving(false)
+  }, [])
+  const debounceAutoSave = useDebounce(autoSave, 1000)
+
   const handleDeleteNote = async (id:string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     Alert.alert('Confirm note delete', null, [
@@ -256,7 +308,11 @@ const NewNote = () => {
       <View className='h-full flex-1'>
         <View className='flex-row justify-between px-5 mt-4'>
           <Text className='text-gray-500'>
-            {format(note.updatedAt, "dd / MM / yy")}
+            {format(note.updatedAt, "dd / MM / yy")} {isSaving && 'saving...'}
+            {isDirty.current && '1 - *'}
+            {isTitleDirty.current && '2 - *'}
+            {isActiveCategoryDirty.current && '3 - *'}
+            {isSomethingDirty && 'a - *'}
           </Text>
           <Text
             onPress={handleOpenCatModal}
@@ -285,7 +341,7 @@ const NewNote = () => {
         <KeyboardAvoidingView
           enabled behavior='padding'
           className='flex-1'
-          keyboardVerticalOffset={headerHeight+45}
+          keyboardVerticalOffset={headerHeight+20}
         >
           <ScrollView className='flex-1 flex-row'>
             <TextInput
