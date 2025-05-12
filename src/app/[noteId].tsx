@@ -219,8 +219,11 @@ const NewNote = () => {
     isDirty.current = false
     isTitleDirty.current = false
     isActiveCategoryDirty.current = false
+
+    // Force a re-render to update the UI and animated values
+    setNote(prevNote => ({ ...prevNote }))
+
     setStoredNoteId(noteToSave.id)
-    console.log('auto saved')
     setIsSaving(false)
   }, [])
   const debounceAutoSave = useDebounce(autoSave, 1000)
@@ -271,7 +274,6 @@ const NewNote = () => {
 
   const isDirtySharedVal = useSharedValue(false)
   useEffect(()=>{
-    console.log(isSomethingDirty)
     isDirtySharedVal.value = isSomethingDirty
   },[isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
 
