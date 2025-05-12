@@ -183,9 +183,9 @@ const NewNote = () => {
         })
       }
 
+      debounceAutoSave(updated)
       return updated
     })
-    debounceAutoSave()
   }
 
   // handle saving / updating note
@@ -204,16 +204,25 @@ const NewNote = () => {
 
   // handle auto-saving
   const [isSaving, setIsSaving] = useState(false);
-  const autoSave = useCallback(async () => {
+  const autoSave = useCallback(async (noteToSave: NoteType) => {
     const autoSaveOn = await getAutoSaveNotesPreference()
     if (!autoSaveOn) return
 
     setIsSaving(true)
-    await new Promise(resolve => setTimeout(resolve, 3000))
-    handleSaveNote()
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    saveNote({ ...noteToSave, updatedAt: new Date() })
+    setSavedNoteState({
+      title: noteToSave.title,
+      content: noteToSave.content,
+      categoryId: noteToSave.categoryId,
+    })
+    isDirty.current = false
+    isTitleDirty.current = false
+    isActiveCategoryDirty.current = false
+    setStoredNoteId(noteToSave.id)
     console.log('auto saved')
     setIsSaving(false)
-  }, [handleSaveNote])
+  }, [])
   const debounceAutoSave = useDebounce(autoSave, 1000)
 
   const handleDeleteNote = async (id:string) => {
@@ -262,6 +271,7 @@ const NewNote = () => {
 
   const isDirtySharedVal = useSharedValue(false)
   useEffect(()=>{
+    console.log(isSomethingDirty)
     isDirtySharedVal.value = isSomethingDirty
   },[isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
 
@@ -297,6 +307,10 @@ const NewNote = () => {
         <View className='flex-row justify-between px-5 mt-4'>
           <Text className='text-gray-500'>
             {format(note.updatedAt, "dd / MM / yy")} {isSaving && 'saving...'}
+            {isDirty.current && '1 - *'}
+            {isTitleDirty.current && '2 - *'}
+            {isActiveCategoryDirty.current && '3 - *'}
+            {isSomethingDirty && 'a - *'}
           </Text>
           <Text
             onPress={handleOpenCatModal}
