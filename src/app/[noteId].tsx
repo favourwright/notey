@@ -309,10 +309,6 @@ const NewNote = () => {
         <View className='flex-row justify-between px-5 mt-4'>
           <Text className='text-gray-500'>
             {format(note.updatedAt, "dd / MM / yy")} {isSaving && 'saving...'}
-            {isDirty.current && '1 - *'}
-            {isTitleDirty.current && '2 - *'}
-            {isActiveCategoryDirty.current && '3 - *'}
-            {isSomethingDirty && 'a - *'}
           </Text>
           <Text
             onPress={handleOpenCatModal}
