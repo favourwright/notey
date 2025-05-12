@@ -1,11 +1,12 @@
-export const debounce = (func:(data?:any)=>void, delay:number) => {
-  let timeoutId:any;
-
-  return (...args:any) => {
-    clearTimeout(timeoutId);
-
-    timeoutId = setTimeout(() => {
-      func.apply(this, args);
-    }, delay);
+export function useDebounce<T extends (...args: any[]) => void>(
+  func: T,
+  wait?: number
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout>;
+  return function (...args: Parameters<T>) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func(...args);
+    }, wait || 500);
   };
-};
+}

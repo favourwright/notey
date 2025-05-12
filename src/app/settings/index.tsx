@@ -1,6 +1,6 @@
 import { Link, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useState } from 'react'
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather';
 import Colors from '@/constants/Colors';
 import { StatusBar } from 'expo-status-bar';
@@ -11,6 +11,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { clearAllNotes } from '@/store/notes';
 import { clearAllCategories } from '@/store/categories';
 import EditUsernameModal from '@/components/EditUsernameModal';
+import { setAutoSave, getAutoSave } from '@/store/notes';
 import * as Haptics from 'expo-haptics';
 
 type Props = {
@@ -63,6 +64,7 @@ const index = ({ }: Props) => {
     await clearAllNotes()
     await clearAllCategories()
     await clearOnboardingRecords()
+    await setAutoSave(false)
     router.replace('/onboarding')
   }
 
@@ -80,6 +82,19 @@ const index = ({ }: Props) => {
     ]);
   }
 
+  const [autoSaveNotes, setAutoSaveNotes] = useState(true)
+  const handleAutoSave = async (value:boolean) => {
+    await setAutoSave(value)
+    setAutoSaveNotes(value)
+  }
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      setAutoSaveNotes(await getAutoSave())
+    });
+  
+    return unsubscribe;
+  }, [navigation.isFocused]);
+
   return (
     <View className='flex-1 bg-primary'>
       <StatusBar style="light" />
@@ -95,18 +110,37 @@ const index = ({ }: Props) => {
       <View
         style={{paddingBottom:bottom}}
         className='flex-1 bg-secondary/[0.01] rounded-t-3xl pt-5'>
-        <View className='flex-1 gap-4 px-5'>
-          <Pressable
-            onPress={()=>usernameModal[1](true)}
-            className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10
-            flex-row justify-between'>
-            <Text className='text-secondary/80 text-2xl'>{username}</Text>
-            <Feather
-              name="edit-3" size={24}
-              color={Colors.dark.secondary}
-              className='opacity-70'
-            />
-          </Pressable>
+        <View className='flex-1 justify-between px-5 pb-10'>
+          <View className='flex-1 gap-4'>
+            <Pressable
+              onPress={()=>usernameModal[1](true)}
+              className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10
+              flex-row justify-between'>
+              <Text className='text-secondary/80 text-2xl'>{username}</Text>
+              <Feather
+                name="edit-3" size={24}
+                color={Colors.dark.secondary}
+                className='opacity-70'
+              />
+            </Pressable>
+
+            <View className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10 flex-row items-center justify-between'>
+              <View className='flex flex-row items-center gap-3'>
+                <Feather name="save" size={24}
+                  color={Colors.dark.secondary}
+                  className='opacity-70'
+                />
+                <Text className='text-2xl text-secondary/80'>Auto-save notes</Text>
+              </View>
+
+              <Switch
+                value={autoSaveNotes}
+                onValueChange={handleAutoSave}
+                thumbColor='white'
+                trackColor={{true: Colors.dark.accent}}
+              />
+            </View>
+          </View>
 
           <Pressable
             onPress={handleClearData}

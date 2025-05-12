@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions, KeyboardAvoidingView } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { format } from "date-fns";
@@ -25,6 +25,8 @@ import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryT
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useHeaderHeight } from '@react-navigation/elements'
 import HeaderRight from '@/components/note/header/HeaderRight';
+import { getAutoSave as getAutoSaveNotesPreference } from '@/store/notes';
+import { useDebounce } from '@/constants/debounce'
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -117,7 +119,10 @@ const NewNote = () => {
   const isDirty = useRef<boolean>()
   const isTitleDirty = useRef<boolean>()
   const isActiveCategoryDirty = useRef<boolean>()
-  const isSomethingDirty = isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
+  const isSomethingDirty = useMemo(() => {
+    return isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
+  }, [isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
+
   const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
     return oldValue !== newValue
   }
@@ -158,6 +163,7 @@ const NewNote = () => {
         newValue: value
       })
     }
+    debounceAutoSave()
   }
 
   // handle saving / updating note
@@ -176,6 +182,21 @@ const NewNote = () => {
     isActiveCategoryDirty.current = false
     setStoredNoteId(note.id)
   }
+
+  // handle auto-saving
+  const [isSaving, setIsSaving] = useState(false);
+  const autoSave = async () => {
+    const autoSaveOn = await getAutoSaveNotesPreference()
+    if(!autoSaveOn) return
+
+    setIsSaving(true)
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    handleSaveNote()
+    console.log('auto saved')
+    setIsSaving(false)
+  }
+  const debounceAutoSave = useCallback(useDebounce(autoSave), [note]);
+
   const handleDeleteNote = async (id:string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     Alert.alert('Confirm note delete', null, [
@@ -256,7 +277,7 @@ const NewNote = () => {
       <View className='h-full flex-1'>
         <View className='flex-row justify-between px-5 mt-4'>
           <Text className='text-gray-500'>
-            {format(note.updatedAt, "dd / MM / yy")}
+            {format(note.updatedAt, "dd / MM / yy")} {isSaving && 'saving...'}
           </Text>
           <Text
             onPress={handleOpenCatModal}

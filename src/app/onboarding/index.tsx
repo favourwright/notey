@@ -11,12 +11,13 @@ import { StatusBar } from 'expo-status-bar'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Pagination from '@/components/onboarding/Pagination'
 import ActionBtns from '@/components/onboarding/ActionBtns'
-import { debounce } from '@/constants/debounce'
+import { useDebounce } from '@/constants/debounce'
 import Toast from 'react-native-root-toast'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { clearAllNotes, NoteType, saveNote, seedNotes } from '@/store/notes'
 import { processItems } from '@/constants/utils'
+import { setAutoSave as setAutoSaveNotes } from '@/store/notes';
 
 // add some defaults
 const defaultCategories:NoteCategoryType[] = [
@@ -38,7 +39,7 @@ const defaultCategories:NoteCategoryType[] = [
 ]
 
 // onboarding slides
-const setUsernameWithDebounced = debounce(setUsernameToStore, 500)
+const setUsernameWithDebounced = useDebounce(setUsernameToStore, 500)
 const slides: SlideType[] = [
   {
     id: '1',
@@ -153,6 +154,7 @@ const Onboarding = () => {
   useEffect(()=>{
     clearAllCategories() // remove when done
     setDefaultCategories()
+    setAutoSaveNotes(true)
   },[])
 
   const handlePrev = useCallback((first:boolean) => {
