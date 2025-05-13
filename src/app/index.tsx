@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { useNavigation } from 'expo-router';
-import { View, Text, ScrollView } from 'react-native';
+import { useNavigation, useRouter } from 'expo-router';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import NameNGreeting from '@/components/header/NameNGreeting';
 import FilterPills from '@/components/FilterPills';
@@ -14,70 +14,86 @@ import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryT
 import { clearOnboardingRecords, getUsername } from '@/store/onboarding';
 import NoteOptionsModal from '@/components/NoteOptionsModal';
 import Seperator from '@/components/Seperator';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 export default function Home() {
   const navigation = useNavigation();
+  const router = useRouter();
 
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
-  const [username, setUsername] = useState('')
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [username, setUsername] = useState('');
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => <NameNGreeting name={username} />,
     });
-  }, [navigation,username]);
+  }, [navigation, username]);
 
-  const [notes, setNotes] = useState<NoteType[]>([])
+  const [notes, setNotes] = useState<NoteType[]>([]);
   const renderedNotes = (noteCategory: NoteCategoryType|null) => {
-    if(!noteCategory) return notes
-    return notes.filter(note => note.categoryId === noteCategory.id)
-  }
+    if(!noteCategory) return notes;
+    return notes.filter(note => note.categoryId === noteCategory.id);
+  };
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      const notes = await getAllNotes()
-      setNotes(notes)
+      const notes = await getAllNotes();
+      setNotes(notes);
 
       // for categories
-      const cats = await getAllCategories()
-      setCatList(cats)
+      const cats = await getAllCategories();
+      setCatList(cats);
 
       // for active category
-      const activeCat = await getActiveCategory()
-      setSelectedcategory(activeCat)
+      const activeCat = await getActiveCategory();
+      setSelectedcategory(activeCat);
 
       // for username
-      setUsername(await getUsername())
+      setUsername(await getUsername());
     });
   
     return unsubscribe; // Cleanup function
   }, [navigation.isFocused]); // Dependency array
 
+  const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null);
+  const [catList, setCatList] = useState<NoteCategoryType[]>([]);
 
-  const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
-  const [catList, setCatList] = useState<NoteCategoryType[]>([])
+  const handleSetSelectedCategory = (cat: NoteCategoryType) => {
+    setSelectedcategory(cat);
+    setActiveCategory(cat?.id);
+  };
 
-  const handleSetSelectedCategory = (cat:NoteCategoryType) => {
-    setSelectedcategory(cat)
-    setActiveCategory(cat?.id)
-  }
-
-  const handleCatUpdate = (cats:NoteCategoryType[]) => {
-    setCatList(cats)
+  const handleCatUpdate = (cats: NoteCategoryType[]) => {
+    setCatList(cats);
     // if the selected category is deleted, reset the selected category
     if(selectedCategory && !cats.find(cat => cat.id === selectedCategory.id)){
-      setSelectedcategory(null)
-      setActiveCategory(null)
+      setSelectedcategory(null);
+      setActiveCategory(null);
     }
-  }
+  };
 
-  const noteModal = useState(false)
-  const [noteToSeeOptions, setNoteToSeeOptions] = useState<NoteType>(undefined)
-  const handleShowNoteOptions = (note:NoteType) =>{
-    setNoteToSeeOptions(note)
-    const [_,setter] = noteModal
-    setter(true)
-  }
+  const noteModal = useState(false);
+  const [noteToSeeOptions, setNoteToSeeOptions] = useState<NoteType>(undefined);
+  const handleShowNoteOptions = (note: NoteType) => {
+    setNoteToSeeOptions(note);
+    const [_, setter] = noteModal;
+    setter(true);
+  };
+
+  // Animation for the floating button - Fixed to use only Reanimated
+  const pressedSharedVal = useSharedValue(false);
+  const animatedBtnOnpressStyle = useAnimatedStyle(() => {
+    return {
+      opacity: pressedSharedVal.value ?
+        withSpring(0.7) :
+        withSpring(1),
+      transform: [{
+        scale: pressedSharedVal.value ?
+          withSpring(0.95) :
+          withSpring(1)
+      }]
+    };
+  });
 
   return (
     <View className="flex-1 bg-primary">
@@ -113,14 +129,14 @@ export default function Home() {
           />
         </View>
 
-        <View className='mt-8 px-5 flex-1'>
+        <View className='mt-8 px-5 pb-20 flex-1'>
           <Seperator padding='px-0' color='bg-secondary/20' />
           <Notelist
             notes={renderedNotes(selectedCategory)}
             onShowOptions={handleShowNoteOptions}
           />
 
-          {/* emoty state UI */}
+          {/* empty state UI */}
           {renderedNotes(selectedCategory).length === 0 && (
             <View className='flex-1 justify-center items-center my-10 gap-10 mx-auto max-w-xs px-5'>
               {!selectedCategory && <><Entypo name='flower' size={80} className='!text-white/10' />
@@ -136,6 +152,29 @@ export default function Home() {
           )}
         </View>
       </ScrollView>
+
+      {/* Floating Add Button - Fixed to use only Reanimated */}
+      <Pressable
+        onPressIn={() => {
+          pressedSharedVal.value = true;
+        }}
+        onPressOut={() => {
+          pressedSharedVal.value = false;
+        }}
+        onPress={() => router.push('/undefined')}
+        accessibilityLabel="Add new note"
+        accessibilityHint={selectedCategory ? `Creates a new note in ${selectedCategory.name} category` : "Creates a new note"}
+        accessibilityRole="button"
+      >
+        <Animated.View
+          style={animatedBtnOnpressStyle}
+          className='flex flex-row items-center gap-2 absolute bottom-10
+          !right-10 bg-accent rounded-full p-3 px-4'>
+          <AntDesign name='pluscircle' size={24} />
+          <Text className='text-xl'>New</Text>
+        </Animated.View>
+      </Pressable>
+
       <ManageCategories
         mode={CategoryActionModes.EDIT}
         onChange={handleCatUpdate}
@@ -144,9 +183,9 @@ export default function Home() {
       <NoteOptionsModal
         note={noteToSeeOptions}
         isOpen={noteModal}
-        onNoteDelete={async ()=>{
-          const notes = await getAllNotes()
-          setNotes(notes)
+        onNoteDelete={async () => {
+          const notes = await getAllNotes();
+          setNotes(notes);
         }}
       />
     </View>

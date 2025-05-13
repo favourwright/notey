@@ -36,7 +36,7 @@ const index = ({ }: Props) => {
           />
           <Text
             style={{ fontFamily: 'CoveredByYourGrace_400Regular' }}
-            className='text-2xl text-white/80'>
+            className='text-xl text-white/80'>
             Notes
           </Text>
         </Pressable>
@@ -116,7 +116,7 @@ const index = ({ }: Props) => {
               onPress={()=>usernameModal[1](true)}
               className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10
               flex-row justify-between'>
-              <Text className='text-secondary/80 text-2xl'>{username}</Text>
+              <Text className='text-secondary/80 text-xl'>{username}</Text>
               <Feather
                 name="edit-3" size={24}
                 color={Colors.dark.secondary}
@@ -130,7 +130,7 @@ const index = ({ }: Props) => {
                   color={Colors.dark.secondary}
                   className='opacity-70'
                 />
-                <Text className='text-2xl text-secondary/80'>Auto-save notes</Text>
+                <Text className='text-xl text-secondary/80'>auto-save notes</Text>
               </View>
 
               <Switch
@@ -147,7 +147,7 @@ const index = ({ }: Props) => {
             onPress={handleClearData}
             className='p-5 py-4 bg-red-500/5 rounded-2xl border border-secondary/10
             flex-row justify-between'>
-            <Text className='text-red-500/70 text-2xl'>clear all data</Text>
+            <Text className='text-red-500/70 text-xl'>clear all data</Text>
             <Feather
               name="trash-2" size={24}
               color='red'
