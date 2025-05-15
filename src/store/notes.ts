@@ -1,5 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getCategoryById, type NoteCategoryType } from './categories';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import * as DocumentPicker from 'expo-document-picker';
+import Toast from 'react-native-root-toast';
+import { getCategoryById, getAllCategories, type NoteCategoryType } from './categories';
+import Colors from '@/constants/Colors';
 
 const STORE_KEY = '@notes-app-x/notes'
 export const AUTO_SAVE_STATE_KEY = '@notes-app-x/autosave'
@@ -12,6 +17,13 @@ export type NoteType = {
   createdAt: Date,
   updatedAt: Date,
   // consider a sorting key
+}
+
+// Export data structure
+export type ExportDataType = {
+  notes: NoteType[],
+  categories: NoteCategoryType[],
+  version: string
 }
 
 export const saveNote = async (payload:NoteType) => {
@@ -37,6 +49,7 @@ export const getAllNotes = async () => {
   } catch (e) {
     console.log({GetAllNotesError: e})
   }
+  return []
 }
 
 export const getNoteById = async (noteId:string) => {
@@ -146,6 +159,103 @@ export const processNoteContent = (content:string) => {
   data.currencySymbol = currencySymbol
   return data
 }
+
+// EXPORT FUNCTIONALITY
+export const exportData = async (): Promise<string | null> => {
+  try {
+    // Get all notes and categories
+    const notes = await getAllNotes();
+    const categories = await getAllCategories();
+    
+    // Create export data structure
+    const exportData: ExportDataType = {
+      notes: notes || [],
+      categories: categories || [],
+      version: '1.0.0' // Version your export format for future compatibility
+    };
+    
+    // Convert to JSON string
+    const jsonData = JSON.stringify(exportData, null, 2);
+    
+    // Create a temporary file
+    const fileUri = `${FileSystem.cacheDirectory}notes-app-export-${Date.now()}.json`;
+    await FileSystem.writeAsStringAsync(fileUri, jsonData);
+    
+    // Share the file
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'application/json',
+        dialogTitle: 'Export Notes',
+        UTI: 'public.json'
+      });
+      return fileUri;
+    } else {
+      console.log('Sharing is not available on this device');
+      return null;
+    }
+  } catch (error) {
+    console.error('Export error:', error);
+    return null;
+  }
+};
+
+// IMPORT FUNCTIONALITY
+export const importData = async (): Promise<boolean> => {
+  try {
+    // Pick a document
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'application/json',
+      copyToCacheDirectory: true
+    });
+    
+    if (result.canceled) {
+      return false;
+    }
+    
+    // Read the file content
+    const fileUri = result.assets[0].uri;
+    const fileContent = await FileSystem.readAsStringAsync(fileUri);
+    
+    // Parse and validate the data
+    const importedData = JSON.parse(fileContent) as ExportDataType;
+    
+    if (!importedData.notes || !importedData.categories || !importedData.version) {
+      throw new Error('Invalid import file format');
+    }
+    
+    // Import categories first (to maintain references)
+    for (const category of importedData.categories) {
+      await AsyncStorage.setItem(`@notes-app-x/categories/${category.id}`, JSON.stringify(category));
+    }
+    
+    // Import notes
+    const notesWithoutCategories = importedData.notes.map(note => {
+      const { category, ...noteWithoutCategory } = note;
+      return noteWithoutCategory;
+    });
+    
+    await AsyncStorage.setItem(STORE_KEY, JSON.stringify(notesWithoutCategories));
+    
+    return true;
+  } catch (error) {
+    console.error('Import error:', error);
+    return false;
+  }
+};
+
+// Helper to show toast messages for export/import operations
+export const showOperationToast = (message: string, success: boolean = true) => {
+  Toast.show(message, {
+    duration: Toast.durations.SHORT,
+    backgroundColor: success ? Colors.dark.accent : '#F28B82',
+    shadow: false,
+    textColor: 'black',
+    containerStyle: {
+      borderRadius: 14,
+      padding: 10,
+    }
+  });
+};
 
 export const seedNotes = [
   // {

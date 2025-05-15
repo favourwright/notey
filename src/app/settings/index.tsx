@@ -11,6 +11,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { clearAllNotes } from '@/store/notes';
 import { clearAllCategories } from '@/store/categories';
 import EditUsernameModal from '@/components/EditUsernameModal';
+import ExportImportModal from '@/components/ImportExportModal';
 import { setAutoSave, getAutoSave } from '@/store/notes';
 import * as Haptics from 'expo-haptics';
 
@@ -22,6 +23,7 @@ const index = ({ }: Props) => {
   const { bottom } = useSafeAreaInsets()
   const router = useRouter()
   const usernameModal = useState(false)
+  const exportImportModal = useState(false)
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -107,14 +109,12 @@ const index = ({ }: Props) => {
         </Text>
       </View>
 
-      <View
-        style={{paddingBottom:bottom}}
-        className='flex-1 bg-secondary/[0.01] rounded-t-3xl pt-5'>
+      <View style={{paddingBottom:bottom}} className='flex-1 pt-5'>
         <View className='flex-1 justify-between px-5 pb-10'>
           <View className='flex-1 gap-4'>
             <Pressable
               onPress={()=>usernameModal[1](true)}
-              className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10
+              className='p-5 py-3 bg-primary rounded-2xl border border-secondary/10
               flex-row justify-between'>
               <Text className='text-secondary/80 text-xl'>{username}</Text>
               <Feather
@@ -124,13 +124,23 @@ const index = ({ }: Props) => {
               />
             </Pressable>
 
-            <View className='p-5 py-4 bg-primary rounded-2xl border border-secondary/10 flex-row items-center justify-between'>
+            <Pressable
+              onPress={()=>exportImportModal[1](true)}
+              className='p-5 py-3 bg-primary rounded-2xl border border-secondary/10 flex-row items-center justify-between'>
+              <Text className='text-xl text-secondary/80'>Import / export data</Text>
+              <Feather name="file" size={24}
+                color={Colors.dark.secondary}
+                className='opacity-70'
+              />
+            </Pressable>
+
+            <View className='p-5 py-3 bg-primary rounded-2xl border border-secondary/10 flex-row items-center justify-between'>
               <View className='flex flex-row items-center gap-3'>
                 <Feather name="save" size={24}
                   color={Colors.dark.secondary}
                   className='opacity-70'
                 />
-                <Text className='text-xl text-secondary/80'>auto-save notes</Text>
+                <Text className='text-xl text-secondary/80'>Auto-save notes</Text>
               </View>
 
               <Switch
@@ -145,13 +155,12 @@ const index = ({ }: Props) => {
 
           <Pressable
             onPress={handleClearData}
-            className='p-5 py-4 bg-red-500/5 rounded-2xl border border-secondary/10
+            className='p-5 py-3 bg-red-300/5 rounded-2xl border border-secondary/10
             flex-row justify-between'>
-            <Text className='text-red-500/70 text-xl'>clear all data</Text>
+            <Text className='text-red-300 text-xl'>clear all data</Text>
             <Feather
               name="trash-2" size={24}
-              color='red'
-              className='opacity-70'
+              className='opacity-70 !text-red-300'
             />
           </Pressable>
         </View>
@@ -170,6 +179,11 @@ const index = ({ }: Props) => {
       </View>
 
       <EditUsernameModal isOpen={usernameModal} onSave={setUsername} />
+      <ExportImportModal
+        isOpen={exportImportModal}
+        // onExport={exportData}
+        // onImport={importData}
+      />
     </View>
   )
 }
