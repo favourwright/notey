@@ -137,7 +137,7 @@ const index = ({ }: Props) => {
                 value={autoSaveNotes}
                 onValueChange={handleAutoSave}
                 thumbColor='white'
-                trackColor={{true: Colors.dark.accent}}
+                trackColor={{true: Colors.dark.accent, false: Colors.dark['light-gray']}}
                 ios_backgroundColor={Colors.dark['light-gray']}
               />
             </View>
