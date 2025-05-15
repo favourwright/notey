@@ -20,7 +20,7 @@ const ExportImportModal = ({
 }) => {
   const { bottom } = useSafeAreaInsets();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const snapPoints = useMemo(() => [240], []);
+  const snapPoints = useMemo(() => [200], []);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 

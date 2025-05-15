@@ -18,7 +18,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 
 export default function Home() {
   const navigation = useNavigation();
-  const router = useRouter();
+  const { navigate } = useRouter();
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [username, setUsername] = useState('');
@@ -161,7 +161,7 @@ export default function Home() {
         onPressOut={() => {
           pressedSharedVal.value = false;
         }}
-        onPress={() => router.navigate('/undefined')}
+        onPress={() => navigate('/undefined')}
         accessibilityLabel="Add new note"
         accessibilityHint={selectedCategory ? `Creates a new note in ${selectedCategory.name} category` : "Creates a new note"}
         accessibilityRole="button"
