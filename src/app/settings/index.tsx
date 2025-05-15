@@ -155,13 +155,12 @@ const index = ({ }: Props) => {
 
           <Pressable
             onPress={handleClearData}
-            className='p-5 py-3 bg-red-500/5 rounded-2xl border border-secondary/10
+            className='p-5 py-3 bg-red-300/5 rounded-2xl border border-secondary/10
             flex-row justify-between'>
-            <Text className='text-red-500/70 text-xl'>clear all data</Text>
+            <Text className='text-red-300 text-xl'>clear all data</Text>
             <Feather
               name="trash-2" size={24}
-              color='red'
-              className='opacity-70'
+              className='opacity-70 !text-red-300'
             />
           </Pressable>
         </View>
