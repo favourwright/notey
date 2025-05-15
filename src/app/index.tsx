@@ -161,7 +161,7 @@ export default function Home() {
         onPressOut={() => {
           pressedSharedVal.value = false;
         }}
-        onPress={() => router.push('/undefined')}
+        onPress={() => router.navigate('/undefined')}
         accessibilityLabel="Add new note"
         accessibilityHint={selectedCategory ? `Creates a new note in ${selectedCategory.name} category` : "Creates a new note"}
         accessibilityRole="button"
@@ -171,7 +171,7 @@ export default function Home() {
           className='flex flex-row items-center gap-2 absolute bottom-10
           !right-10 bg-accent rounded-full p-3 px-4'>
           <AntDesign name='pluscircle' size={24} />
-          <Text className='text-xl'>New</Text>
+          <Text className='text-xl font-bold'>new</Text>
         </Animated.View>
       </Pressable>
 
