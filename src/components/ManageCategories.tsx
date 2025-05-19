@@ -55,13 +55,13 @@ const ManageCategories = ({
   },[openState])
 
   const [newCat, setNewCat] = useState('')
+  const handleSetNewCat = (text:string)=>setNewCat(text.replace(/[^a-zA-Z\s]/g, '').toLocaleLowerCase())
   const [renderedCategories, setRenderedCategories] = useState<NoteCategoryType[]>([])
   const handleCreateCategory = async ()=>{
-    const sanitized = newCat.replace(/[^a-zA-Z\s]/g, '') // remove all characters except alphabets and spaces
-    if(!sanitized?.trim()) return setNewCat('')
+    if(!newCat?.trim()) return setNewCat('')
     const payload: NoteCategoryType = {
       id: uuid.v4() as string,
-      name: sanitized,
+      name: newCat,
     }
     try {
       await saveCategory(payload)
@@ -124,8 +124,9 @@ const ManageCategories = ({
           <View style={{paddingBottom:bottom}} className='flex-1'>
             {activeMode === CategoryActionModes.EDIT && <BottomSheetTextInput
               value={newCat}
-              onChangeText={setNewCat}
+              onChangeText={handleSetNewCat}
               onSubmitEditing={handleCreateCategory}
+              autoCapitalize="none"
               placeholder='add new category'
               enterKeyHint='done'
               className='self-stretch bg-white/10 p-4 py-3 text-lg leading-[18px]
