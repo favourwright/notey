@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const STORE_KEY = '@notes-app-x/categories'
+export const STORE_KEY = '@notes-app-x/categories'
 export type NoteCategoryType = {
   id: string,
   name: string,

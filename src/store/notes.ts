@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 import Toast from 'react-native-root-toast';
-import { getCategoryById, getAllCategories, type NoteCategoryType } from './categories';
+import { STORE_KEY as CAT_STORE_KEY, getCategoryById, getAllCategories, type NoteCategoryType, getCatStoreData, type CatStoreType } from './categories';
 import Colors from '@/constants/Colors';
 
 const STORE_KEY = '@notes-app-x/notes'
@@ -23,6 +23,7 @@ export type NoteType = {
 export type ExportDataType = {
   notes: NoteType[],
   categories: NoteCategoryType[],
+  categoryStore?: CatStoreType,
   version: string
 }
 
@@ -166,11 +167,13 @@ export const exportData = async (): Promise<string | null> => {
     // Get all notes and categories
     const notes = await getAllNotes();
     const categories = await getAllCategories();
+    const catStoreData = await getCatStoreData();
     
     // Create export data structure
     const exportData: ExportDataType = {
       notes: notes || [],
       categories: categories || [],
+      categoryStore: catStoreData,
       version: '1.0.0' // Version your export format for future compatibility
     };
     
@@ -217,15 +220,22 @@ export const importData = async (): Promise<boolean> => {
     const fileContent = await FileSystem.readAsStringAsync(fileUri);
     
     // Parse and validate the data
-    const importedData = JSON.parse(fileContent) as ExportDataType;
+    const importedData = JSON.parse(fileContent) as ExportDataType & { categoryStore?: CatStoreType };
     
     if (!importedData.notes || !importedData.categories || !importedData.version) {
       throw new Error('Invalid import file format');
     }
     
-    // Import categories first (to maintain references)
-    for (const category of importedData.categories) {
-      await AsyncStorage.setItem(`@notes-app-x/categories/${category.id}`, JSON.stringify(category));
+    // Import categories using the category store structure
+    if (importedData.categoryStore) {
+      await AsyncStorage.setItem(CAT_STORE_KEY, JSON.stringify(importedData.categoryStore));
+    } else {
+      // Fallback for older exports that might not have categoryStore
+      const catStoreData: CatStoreType = {
+        categories: importedData.categories,
+        activeCategory: importedData.categories.find(cat => cat.isDefault) || importedData.categories[0] || null
+      };
+      await AsyncStorage.setItem(CAT_STORE_KEY, JSON.stringify(catStoreData));
     }
     
     // Import notes
