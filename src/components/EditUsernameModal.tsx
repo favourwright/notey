@@ -94,15 +94,15 @@ const NoteOptionsModal = ({
               onChangeText={setUsername}
               onSubmitEditing={handleUsernameSave}
               maxLength={20}
-              placeholder='name'
+              placeholder='username'
               autoComplete='username'
               enterKeyHint='done'
-              className='self-stretch rounded-lg py-4 px-2 text-2xl
-              text-white placeholder:text-white/50 border-b border-secondary/50'
+              className='self-stretch rounded-2xl p-3 px-4 text-2xl leading-tight
+              border-2 border-gray-500/10 text-secondary/80 placeholder:text-white/50'
             />
             <Pressable
               onPress={handleUsernameSave}
-              className='bg-secondary/80 rounded-2xl p-3'>
+              className='bg-secondary/80 rounded-2xl p-2'>
               <Text
                 className='text-primary/80 font-bold text-2xl text-center'>
                 save
