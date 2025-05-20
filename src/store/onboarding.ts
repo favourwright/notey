@@ -5,7 +5,7 @@ export type SlideType = {
   animation: string;
   title: string;
   description: string;
-  Component?: () => JSX.Element;
+  Component?: (props: { onNext?: () => void; onPrev?: () => void }) => JSX.Element;
 };
 
 export type OnboardingRecord = {

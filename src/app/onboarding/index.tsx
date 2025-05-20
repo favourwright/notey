@@ -46,7 +46,7 @@ const slides: SlideType[] = [
     animation: require('@/assets/lottie/girl.json'),
     title: '8.93+ million apps yet we got to meet!',
     description: 'This is a simple note taking app that allows you to create, edit and delete notes.',
-    Component: ()=> {
+    Component: ({ onNext }) => {
       const [username, setUsername] = useState('')
       // re-fill username onmount
       useEffect(()=>{
@@ -66,6 +66,11 @@ const slides: SlideType[] = [
         setUsername(text.trim())
         setUsernameWithDebounced(text)
       }
+      const handleSubmit = () => {
+        if(!username) return
+        onNext?.()
+      }
+
       return (
         <View className='mt-10'>
           <View className='gap-2'>
@@ -75,6 +80,7 @@ const slides: SlideType[] = [
               maxLength={20}
               value={username}
               onChangeText={handleTextChange}
+              onSubmitEditing={handleSubmit}
               autoComplete='username'
               className='self-start border-4 border-primary/80 min-w-40 bg-primary/70 text-white
               rounded-xl p-2 px-3 text-3xl font-bold placeholder:text-white/40'
@@ -239,6 +245,8 @@ const Onboarding = () => {
         data={slides}
         keyExtractor={item => item.id}
         renderItem={({item,index}) => <Slide
+          onNext={()=>handleNext(false)}
+          onPrev={()=>handlePrev(false)}
           slide={item}
           index={index}
           x={x}

@@ -115,7 +115,7 @@ export default function Home() {
           <Text
             className='text-6xl text-secondary/20 font-medium flex'
             style={{fontFamily: 'CoveredByYourGrace_400Regular'}}>
-            <Text className='opacity-50'>/</Text>
+            <Text className='text-secondary/10'>/</Text>
             <Text>{notes.length}</Text>
           </Text>
         </View>

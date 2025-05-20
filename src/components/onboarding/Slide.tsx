@@ -8,9 +8,17 @@ type Props = {
   slide: SlideType
   index: number
   x: SharedValue<number>
+  onNext: () => void
+  onPrev: () => void
 }
 
-const Slide = ({slide,index,x}: Props) => {
+const Slide = ({
+  slide,
+  index,
+  x,
+  onNext,
+  onPrev
+}: Props) => {
   const { width:WIDTH } = useWindowDimensions()
   const { top } = useSafeAreaInsets()
 
@@ -55,8 +63,7 @@ const Slide = ({slide,index,x}: Props) => {
             style={{fontFamily: 'CoveredByYourGrace_400Regular'}}>
             {slide.title}
           </Text>
-
-          {slide?.Component && <slide.Component />}
+          {slide?.Component && <slide.Component onNext={onNext} onPrev={onPrev} />}
         </View>
       </ScrollView>
     </View>
