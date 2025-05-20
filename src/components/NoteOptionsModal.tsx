@@ -91,7 +91,7 @@ const NoteOptionsModal = ({
 
   const handleDeleteNote = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    Alert.alert('Confirm note delete', null, [
+    Alert.alert(`Delete ${note.title}?`, null, [
       {
         text: 'Cancel',
         style: 'cancel',
@@ -146,8 +146,8 @@ const NoteOptionsModal = ({
             <Pressable
               onPress={handleDeleteNote}
               className='flex-row items-center gap-3 py-3'>
-              <Feather name="trash-2" size={24} color="red" />
-              <Text className='flex-1 text-2xl text-red-600/80'>Delete note</Text>
+              <Feather name="trash-2" size={24} className='!text-red-300' />
+              <Text className='flex-1 text-2xl text-red-300'>Delete note</Text>
             </Pressable>
           </View>}
         </BottomSheetView>
