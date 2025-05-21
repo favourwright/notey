@@ -1,6 +1,6 @@
 {
   "expo": {
-    "scheme": "notes-app-x",
+    "scheme": "notey",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
@@ -30,7 +30,7 @@
       ],
       "expo-font"
     ],
-    "name": "notes-app-x",
+    "name": "notey",
     "slug": "notes-app-x",
     "extra": {
       "router": {

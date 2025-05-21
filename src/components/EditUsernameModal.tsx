@@ -97,8 +97,8 @@ const NoteOptionsModal = ({
               placeholder='username'
               autoComplete='username'
               enterKeyHint='done'
-              className='self-stretch rounded-2xl p-3 px-4 text-2xl leading-tight
-              border-2 border-gray-500/10 text-secondary/80 placeholder:text-white/50'
+              className='self-stretch rounded-2xl p-3 px-4 text-2xl leading-tight bg-white/5
+              border-2 border-gray-500/30 text-secondary/80 placeholder:text-white/50'
             />
             <Pressable
               onPress={handleUsernameSave}
