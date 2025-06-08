@@ -339,8 +339,12 @@ const NewNote = () => {
           className='flex-1'
           keyboardVerticalOffset={headerHeight+20}
         >
-          <ScrollView className='flex-1 flex-row'>
+          <ScrollView
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+            className='flex-1'>
             <TextInput
+              scrollEnabled={false}
               ref={contentInputRef}
               value={note.content}
               onChangeText={(value) => handleInputChange({field:'content', value})}
