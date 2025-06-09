@@ -26,6 +26,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 import { useHeaderHeight } from '@react-navigation/elements'
 import HeaderRight from '@/components/note/header/HeaderRight';
 import { getAutoSave as getAutoSaveNotesPreference } from '@/store/notes';
+import Textarea from '@/components/Textarea';
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -334,30 +335,12 @@ const NewNote = () => {
           </Pressable>}
         </View>
 
-        <KeyboardAvoidingView
-          enabled behavior='padding'
-          className='flex-1'
-          keyboardVerticalOffset={headerHeight+20}
-        >
-          <ScrollView
-            nestedScrollEnabled
-            keyboardShouldPersistTaps="handled"
-            className='flex-1'>
-            <TextInput
-              scrollEnabled={false}
-              ref={contentInputRef}
-              value={note.content}
-              onChangeText={(value) => handleInputChange({field:'content', value})}
-              className='text-2xl text-gray-600 mt-2 flex-1 px-5 w-full'
-              style={{
-                textAlignVertical: "top",
-                paddingBottom: bottom,
-                width: screenWidth,
-              }}
-              multiline
-            />
-          </ScrollView>
-        </KeyboardAvoidingView>
+        <Textarea
+          content={note.content}
+          onContentChange={(value) => handleInputChange({field:'content', value})}
+          contentInputRef={contentInputRef}
+          placeholder='type your note here...'
+        />
 
         <Animated.View
           style={animatedBtnStyle}
