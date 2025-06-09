@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions, KeyboardAvoidingView } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Pressable, Alert, Keyboard, useWindowDimensions, KeyboardAvoidingView, Platform } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
@@ -77,6 +77,7 @@ const NewNote = () => {
   const [detectedCurrencySymbol, setDetectedCurrencySymbol] = useState('#')
 
   const contentInputRef = useRef<TextInput>(null)
+  const scrollViewRef = useRef(null)
   // set some guide default values
   useEffect(()=>{
     if(!hasNoteId) {
@@ -301,6 +302,35 @@ const NewNote = () => {
     }
   })
 
+  // Add keyboard height tracking
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+
+  useEffect(() => {
+    const keyboardWillShow = Platform.OS === 'ios' 
+      ? Keyboard.addListener('keyboardWillShow', (e) => {
+          setKeyboardHeight(e.endCoordinates.height)
+          // Add small delay to ensure layout is updated
+          setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true })
+          }, 50)
+        })
+      : Keyboard.addListener('keyboardDidShow', (e) => {
+          setKeyboardHeight(e.endCoordinates.height)
+          setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true })
+          }, 50)
+        })
+    
+    const keyboardWillHide = Platform.OS === 'ios'
+      ? Keyboard.addListener('keyboardWillHide', () => setKeyboardHeight(0))
+      : Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0))
+
+    return () => {
+      keyboardWillShow.remove()
+      keyboardWillHide.remove()
+    }
+  }, [])
+
   return (
     <View className='flex-1 bg-secondary'>
       <StatusBar style='dark' backgroundColor='white' />
@@ -336,10 +366,10 @@ const NewNote = () => {
         </View>
 
         <Textarea
-          content={note.content}
-          onContentChange={(value) => handleInputChange({field:'content', value})}
+          value={note.content}
+          onChangeText={(value) => handleInputChange({field:'content', value})}
           contentInputRef={contentInputRef}
-          placeholder='type your note here...'
+          screenWidth={screenWidth}
         />
 
         <Animated.View
