@@ -9,9 +9,10 @@ interface TextareaProps {
   onChangeText: (value: string) => void
   contentInputRef?: React.RefObject<TextInput>
   screenWidth: number
+  placeholder?: string
 }
 
-const Textarea = ({ value, onChangeText, contentInputRef, screenWidth }: TextareaProps) => {
+const Textarea = ({ value, onChangeText, contentInputRef, screenWidth, placeholder }: TextareaProps) => {
   const headerHeight = useHeaderHeight()
   const { bottom } = useSafeAreaInsets()
   const scrollViewRef = useRef(null)
@@ -70,6 +71,7 @@ const Textarea = ({ value, onChangeText, contentInputRef, screenWidth }: Textare
           ref={contentInputRef}
           value={value}
           onChangeText={onChangeText}
+          placeholder={placeholder}
           className='text-2xl text-gray-600 mt-2 flex-1 px-5 w-full'
           style={{
             textAlignVertical: "top",

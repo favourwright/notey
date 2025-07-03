@@ -370,6 +370,7 @@ const NewNote = () => {
           onChangeText={(value) => handleInputChange({field:'content', value})}
           contentInputRef={contentInputRef}
           screenWidth={screenWidth}
+          placeholder='Write something...'
         />
 
         <Animated.View
