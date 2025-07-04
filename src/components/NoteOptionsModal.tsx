@@ -158,7 +158,7 @@ const NoteOptionsModal = ({
         visible={showDeleteConfirm}
         title={`Delete ${note?.title || 'untitled'}?`}
         destructive={true}
-        icon={<Feather name="trash-2" size={32} color="#EF4444" />}
+        icon={<Feather name="trash-2" size={32} className='!text-red-300' />}
         confirmText="Delete"
         onDismiss={() => setShowDeleteConfirm(false)}
         customButtons={[

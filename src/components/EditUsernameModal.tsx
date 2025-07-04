@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, Pressable, Alert } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetView,

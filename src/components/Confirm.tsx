@@ -78,7 +78,7 @@ const Confirm: React.FC<ConfirmProps> = ({
   const getButtonStyle = useCallback((style?: string) => {
     switch (style) {
       case 'destructive':
-        return 'bg-red-500 active:bg-red-600';
+        return 'bg-red-300 active:bg-red-400';
       case 'cancel':
         return 'bg-white/10 active:bg-white/20';
       default:
@@ -138,15 +138,12 @@ const Confirm: React.FC<ConfirmProps> = ({
       onRequestClose={onDismiss}
     >
       <Animated.View 
-        className="flex-1 justify-center items-center px-6"
-        style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          opacity: fadeAnim,
-        }}
+        className="flex-1 justify-center items-center px-6 bg-primary/10"
+        style={{ opacity: fadeAnim }}
       >
         <Animated.View
-          className="bg-primary border border-white/10 rounded-[40px]
-          p-6 w-full max-w-sm gap-6"
+          className="bg-primary border border-white/10 rounded-[36px]
+          p-4 w-full max-w-sm gap-4"
           style={{
             transform: [{ scale: scaleAnim }],
           }}

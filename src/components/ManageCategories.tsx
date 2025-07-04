@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, Pressable, Alert } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import {
   BottomSheetModal,
@@ -15,6 +15,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import uuid from 'react-native-uuid';
 import Colors from '@/constants/Colors';
+import Confirm from './Confirm';
 
 const ManageCategories = ({
   isOpen:[openState,setOpenState],
@@ -57,6 +58,8 @@ const ManageCategories = ({
   const [newCat, setNewCat] = useState('')
   const handleSetNewCat = (text:string)=>setNewCat(text.replace(/[^a-zA-Z\s]/g, '').toLocaleLowerCase())
   const [renderedCategories, setRenderedCategories] = useState<NoteCategoryType[]>([])
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null)
   const handleCreateCategory = async ()=>{
     if(!newCat?.trim()) return setNewCat('')
     const payload: NoteCategoryType = {
@@ -79,22 +82,22 @@ const ManageCategories = ({
     }
   }
   const handleDeleteCategory = async (id:string)=>{
-    Alert.alert('Sure you want to delete this?', null, [
-      {
-        text: 'Cancel',
-        onPress: () => {},
-        style: 'cancel',
-      },
-      {text: 'OK', onPress: async () => {
-        await deleteCategory(id)
-        // remove category from rendered categories
-        setRenderedCategories((prev)=>{
-          const newCat = prev.filter((cat)=>cat.id!==id)
-          onChange && onChange(newCat)
-          return newCat
-        })
-      }},
-    ]);
+    setCategoryToDelete(id)
+    setShowDeleteConfirm(true)
+  }
+
+  const handleConfirmDeleteCategory = async () => {
+    if (!categoryToDelete) return
+    
+    await deleteCategory(categoryToDelete)
+    // remove category from rendered categories
+    setRenderedCategories((prev)=>{
+      const newCat = prev.filter((cat)=>cat.id!==categoryToDelete)
+      onChange && onChange(newCat)
+      return newCat
+    })
+    setShowDeleteConfirm(false)
+    setCategoryToDelete(null)
   }
 
   useEffect(()=>{
@@ -108,67 +111,96 @@ const ManageCategories = ({
   const [activeMode, setActiveMode] = useState<CategoryActionModes>(CategoryActionModes.SELECT)
 
   return (
-    <BottomSheetModalProvider>
-      <BottomSheetModal
-        backdropComponent={renderBackdrop}
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        onChange={handleSheetChanges}
-        keyboardBehavior="interactive"
-        onDismiss={() => setOpenState(false)}
-        backgroundStyle={{backgroundColor: Colors.dark.primary}}
-        handleIndicatorStyle={{backgroundColor: Colors.dark.secondary}}
-      >
-        <BottomSheetView className='flex-1 px-5'>
-          <View style={{paddingBottom:bottom}} className='flex-1'>
-            {activeMode === CategoryActionModes.EDIT && <BottomSheetTextInput
-              value={newCat}
-              onChangeText={handleSetNewCat}
-              onSubmitEditing={handleCreateCategory}
-              autoCapitalize="none"
-              placeholder='add new category'
-              enterKeyHint='done'
-              className='self-stretch bg-white/10 p-4 py-3 text-lg leading-[18px]
-              text-white placeholder:text-white/50 rounded-3xl'
-            />}
-            <View className='flex-row justify-between'>
-              <Text className='mt-3 text-lg font-medium text-white/50'>Categories</Text>
-              {mode === CategoryActionModes.SELECT && (
-                <Text
-                  onPress={()=>setActiveMode(
-                    (prev)=>
-                      prev===CategoryActionModes.SELECT ?
-                        CategoryActionModes.EDIT :
-                        CategoryActionModes.SELECT
-                    )
-                  }
-                  className='mt-3 text-lg font-medium text-white'>
-                  {activeMode===CategoryActionModes.SELECT ? 'edit' : 'done'}
-                </Text>
-              )}
-            </View>
+    <>
+      <BottomSheetModalProvider>
+        <BottomSheetModal
+          backdropComponent={renderBackdrop}
+          ref={bottomSheetModalRef}
+          index={0}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}
+          keyboardBehavior="interactive"
+          onDismiss={() => setOpenState(false)}
+          backgroundStyle={{backgroundColor: Colors.dark.primary}}
+          handleIndicatorStyle={{backgroundColor: Colors.dark.secondary}}
+        >
+          <BottomSheetView className='flex-1 px-5'>
+            <View style={{paddingBottom:bottom}} className='flex-1'>
+              {activeMode === CategoryActionModes.EDIT && <BottomSheetTextInput
+                value={newCat}
+                onChangeText={handleSetNewCat}
+                onSubmitEditing={handleCreateCategory}
+                autoCapitalize="none"
+                placeholder='add new category'
+                enterKeyHint='done'
+                className='self-stretch bg-white/10 p-4 py-3 text-lg leading-[18px]
+                text-white placeholder:text-white/50 rounded-3xl'
+              />}
+              <View className='flex-row justify-between'>
+                <Text className='mt-3 text-lg font-medium text-white/50'>Categories</Text>
+                {mode === CategoryActionModes.SELECT && (
+                  <Text
+                    onPress={()=>setActiveMode(
+                      (prev)=>
+                        prev===CategoryActionModes.SELECT ?
+                          CategoryActionModes.EDIT :
+                          CategoryActionModes.SELECT
+                      )
+                    }
+                    className='mt-3 text-lg font-medium text-white'>
+                    {activeMode===CategoryActionModes.SELECT ? 'edit' : 'done'}
+                  </Text>
+                )}
+              </View>
 
-            <FlatList
-              className='flex-1 mt-2'
-              data={renderedCategories}
-              scrollEnabled={true}
-              keyExtractor={(item)=>item.id}
-              renderItem={({ item, index }) => (
-                <CategoryItem
-                  mode={activeMode}
-                  handleDeleteCategory={handleDeleteCategory}
-                  category={item}
-                  isHighlighted={activeCategory?.id === item.id}
-                  handleSelect={onCategorySelect}
-                />
-              )}
-              ItemSeparatorComponent={()=><Seperator padding='px-0' color='bg-white/10' />}
-            />
-          </View>
-        </BottomSheetView>
-      </BottomSheetModal>
-    </BottomSheetModalProvider>
+              <FlatList
+                className='flex-1 mt-2'
+                data={renderedCategories}
+                scrollEnabled={true}
+                keyExtractor={(item)=>item.id}
+                renderItem={({ item, index }) => (
+                  <CategoryItem
+                    mode={activeMode}
+                    handleDeleteCategory={handleDeleteCategory}
+                    category={item}
+                    isHighlighted={activeCategory?.id === item.id}
+                    handleSelect={onCategorySelect}
+                  />
+                )}
+                ItemSeparatorComponent={()=><Seperator padding='px-0' color='bg-white/10' />}
+              />
+            </View>
+          </BottomSheetView>
+        </BottomSheetModal>
+      </BottomSheetModalProvider>
+
+      <Confirm
+        visible={showDeleteConfirm}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? This action cannot be undone."
+        destructive={true}
+        icon={<Entypo name="circle-with-minus" size={32} className='!text-red-300' />}
+        onDismiss={() => {
+          setShowDeleteConfirm(false)
+          setCategoryToDelete(null)
+        }}
+        customButtons={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => {
+              setShowDeleteConfirm(false)
+              setCategoryToDelete(null)
+            },
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: handleConfirmDeleteCategory,
+          },
+        ]}
+      />
+    </>
   )
 }
 

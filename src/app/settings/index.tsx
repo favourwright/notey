@@ -188,7 +188,7 @@ const index = ({ }: Props) => {
         title="Clear All Data"
         message="This will permanently delete all your notes, categories, and settings. This action cannot be undone."
         destructive={true}
-        icon={<Feather name="trash-2" size={32} color="#EF4444" />}
+        icon={<Feather name="trash-2" size={32} className='!text-red-300' />}
         onDismiss={() => setShowClearDataConfirm(false)}
         customButtons={[
           {
