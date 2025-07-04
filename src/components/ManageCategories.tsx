@@ -179,7 +179,7 @@ const ManageCategories = ({
         title="Delete Category"
         message="Are you sure you want to delete this category? This action cannot be undone."
         destructive={true}
-        icon={<Entypo name="circle-with-minus" size={32} className='!text-red-300' />}
+        icon={<Entypo name="circle-with-minus" size={26} className='!text-red-300' />}
         onDismiss={() => {
           setShowDeleteConfirm(false)
           setCategoryToDelete(null)

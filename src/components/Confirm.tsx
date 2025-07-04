@@ -138,11 +138,11 @@ const Confirm: React.FC<ConfirmProps> = ({
       onRequestClose={onDismiss}
     >
       <Animated.View 
-        className="flex-1 justify-center items-center px-6 bg-primary/10"
+        className="flex-1 justify-center items-center px-6 bg-primary/40"
         style={{ opacity: fadeAnim }}
       >
         <Animated.View
-          className="bg-primary border border-white/10 rounded-[36px]
+          className="bg-primary border border-white/10 rounded-[2.8em]
           p-4 w-full max-w-sm gap-4"
           style={{
             transform: [{ scale: scaleAnim }],

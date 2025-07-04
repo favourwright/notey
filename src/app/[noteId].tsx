@@ -371,7 +371,7 @@ const NewNote = () => {
         visible={showDeleteConfirm}
         title="Confirm note delete"
         destructive={true}
-        icon={<Feather name="trash-2" size={32} className='!text-red-300' />}
+        icon={<Feather name="trash-2" size={26} className='!text-red-300' />}
         onDismiss={() => setShowDeleteConfirm(false)}
         customButtons={[
           {
