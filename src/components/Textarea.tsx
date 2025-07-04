@@ -1,7 +1,6 @@
-import { View, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
-import { useHeaderHeight } from '@react-navigation/elements'
-import { useRef, useEffect, useState } from 'react'
-import { Keyboard } from 'react-native'
+import { View, TextInput } from 'react-native'
+import { useRef } from 'react'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 interface TextareaProps {
@@ -13,75 +12,34 @@ interface TextareaProps {
 }
 
 const Textarea = ({ value, onChangeText, contentInputRef, screenWidth, placeholder }: TextareaProps) => {
-  const headerHeight = useHeaderHeight()
   const { bottom } = useSafeAreaInsets()
-  const scrollViewRef = useRef(null)
-  const [keyboardHeight, setKeyboardHeight] = useState(0)
-
-  useEffect(() => {
-    const keyboardWillShow = Platform.OS === 'ios' 
-      ? Keyboard.addListener('keyboardWillShow', (e) => {
-          setKeyboardHeight(e.endCoordinates.height)
-          // Add small delay to ensure layout is updated
-          setTimeout(() => {
-            scrollViewRef.current?.scrollToEnd({ animated: true })
-          }, 50)
-        })
-      : Keyboard.addListener('keyboardDidShow', (e) => {
-          setKeyboardHeight(e.endCoordinates.height)
-          setTimeout(() => {
-            scrollViewRef.current?.scrollToEnd({ animated: true })
-          }, 50)
-        })
-    
-    const keyboardWillHide = Platform.OS === 'ios'
-      ? Keyboard.addListener('keyboardWillHide', () => setKeyboardHeight(0))
-      : Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0))
-
-    return () => {
-      keyboardWillShow.remove()
-      keyboardWillHide.remove()
-    }
-  }, [])
+  const inputRef = useRef<TextInput>(null)
 
   return (
-    <KeyboardAvoidingView
-      enabled
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAwareScrollView
       className='flex-1'
-      keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight + 20 : 0}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingHorizontal: 20,
+        paddingBottom: bottom + 20,
+      }}
     >
-      <ScrollView
-        ref={scrollViewRef}
-        nestedScrollEnabled
-        keyboardShouldPersistTaps="handled"
-        className='flex-1'
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingBottom: Platform.OS === 'android' 
-            ? keyboardHeight + 20 
-            : keyboardHeight + bottom,
-        }}
-        showsVerticalScrollIndicator={false}
-        keyboardDismissMode="interactive"
-        overScrollMode="never"
-      >
-        <TextInput
-          scrollEnabled={false}
-          ref={contentInputRef}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          className='text-2xl text-gray-600 mt-2 flex-1 px-5 w-full'
-          style={{
-            textAlignVertical: "top",
-            width: screenWidth,
-            flex: 1
-          }}
-          multiline
-        />
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <TextInput
+        ref={contentInputRef || inputRef}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        className='flex-1 text-2xl text-gray-600 mt-2 w-full'
+        multiline
+        textAlignVertical="top"
+        autoFocus={false}
+        blurOnSubmit={false}
+        returnKeyType="default"
+        scrollEnabled={false}
+      />
+    </KeyboardAwareScrollView>
   )
 }
 
