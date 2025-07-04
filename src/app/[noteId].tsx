@@ -22,12 +22,13 @@ import Toast from 'react-native-root-toast';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType } from '@/store/categories';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useHeaderHeight } from '@react-navigation/elements'
 import HeaderRight from '@/components/note/header/HeaderRight';
 import { getAutoSave as getAutoSaveNotesPreference } from '@/store/notes';
 import Textarea from '@/components/Textarea';
 import Confirm from '@/components/Confirm';
+import { useKeyboardHeight } from '@/utils/useKeyboardHeight';
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -37,6 +38,8 @@ const NewNote = () => {
   const { bottom } = useSafeAreaInsets()
   const { width:screenWidth } = useWindowDimensions()
   const headerHeight = useHeaderHeight()
+  const keyboardHeight = useKeyboardHeight();
+  console.log('Keyboard Height:', keyboardHeight); // Debugging
 
   function useDebounce<T extends (...args: any[]) => void>(
     func: T,
@@ -299,6 +302,17 @@ const NewNote = () => {
     }
   })
 
+  // Animated style for floating button above keyboard
+  const floatingBtnStyle = useAnimatedStyle(() => {
+    // Add a margin (e.g., 20) above the keyboard
+    const bottom = keyboardHeight > 0 ? keyboardHeight + 20 : 40;
+    return {
+      bottom: withTiming(bottom, { duration: 250 }),
+      position: 'absolute',
+      right: 20,
+    };
+  }, [keyboardHeight]);
+
   return (
     <View className='flex-1 bg-secondary'>
       <StatusBar style='dark' backgroundColor='white' />
@@ -342,8 +356,8 @@ const NewNote = () => {
         />
 
         <Animated.View
-          style={animatedBtnStyle}
-          className='absolute bottom-10 right-5'>
+          style={[animatedBtnStyle, floatingBtnStyle]}
+        >
           <Pressable onPress={handleSaveNote}>
             {({pressed}) => {
               pressedSharedVal.value = pressed
