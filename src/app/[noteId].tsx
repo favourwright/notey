@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, Pressable, Alert, useWindowDimensions, Keyboard } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, Pressable, useWindowDimensions, Keyboard } from 'react-native'
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
@@ -27,6 +27,7 @@ import { useHeaderHeight } from '@react-navigation/elements'
 import HeaderRight from '@/components/note/header/HeaderRight';
 import { getAutoSave as getAutoSaveNotesPreference } from '@/store/notes';
 import Textarea from '@/components/Textarea';
+import Confirm from '@/components/Confirm';
 
 const NewNote = () => {
   const navigation = useNavigation()
@@ -67,6 +68,7 @@ const NewNote = () => {
   })
   const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   // used to track changes / dirtines of note
   const [savedNoteState, setSavedNoteState] = useState<Partial<NoteType>>({
@@ -231,18 +233,14 @@ const NewNote = () => {
 
   const handleDeleteNote = async (id:string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    Alert.alert('Confirm note delete', null, [
-      {
-        text: 'Cancel',
-        onPress: () => {},
-        style: 'cancel',
-      },
-      {text: 'Delete', onPress: async () => {
-        // delete note
-        await deleteNote(id)
-        navigation.goBack()
-      }},
-    ]);
+    setShowDeleteConfirm(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    // delete note
+    await deleteNote(storedNoteId!)
+    navigation.goBack()
+    setShowDeleteConfirm(false)
   }
   const handleCategoryUpdate = (cat:NoteCategoryType)=>{
     setSelectedcategory(cat);
@@ -367,6 +365,26 @@ const NewNote = () => {
         onCategorySelect={handleCategoryUpdate}
         activeCategory={selectedCategory}
         isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]}
+      />
+
+      <Confirm
+        visible={showDeleteConfirm}
+        title="Confirm note delete"
+        destructive={true}
+        icon={<Feather name="trash-2" size={32} color="#EF4444" />}
+        onDismiss={() => setShowDeleteConfirm(false)}
+        customButtons={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setShowDeleteConfirm(false),
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: handleConfirmDelete,
+          },
+        ]}
       />
     </View>
   )

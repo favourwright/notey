@@ -1,6 +1,6 @@
 import { Link, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useState } from 'react'
-import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Switch, Text, View } from 'react-native'
 import Feather from '@expo/vector-icons/Feather';
 import Colors from '@/constants/Colors';
 import { StatusBar } from 'expo-status-bar';
@@ -14,6 +14,7 @@ import EditUsernameModal from '@/components/EditUsernameModal';
 import ExportImportModal from '@/components/ImportExportModal';
 import { setAutoSave, getAutoSave } from '@/store/notes';
 import * as Haptics from 'expo-haptics';
+import Confirm from '@/components/Confirm';
 
 type Props = {
 
@@ -24,6 +25,7 @@ const index = ({ }: Props) => {
   const router = useRouter()
   const usernameModal = useState(false)
   const exportImportModal = useState(false)
+  const [showClearDataConfirm, setShowClearDataConfirm] = useState(false)
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -72,16 +74,12 @@ const index = ({ }: Props) => {
 
   const handleClearData = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    Alert.alert('Sure you want to clear all your data?', null, [
-      {
-        text: 'Cancel',
-        onPress: () => {},
-        style: 'cancel',
-      },
-      {text: 'OK', onPress: async () => {
-        clearAllData()
-      }},
-    ]);
+    setShowClearDataConfirm(true)
+  }
+
+  const handleConfirmClearData = async () => {
+    await clearAllData()
+    setShowClearDataConfirm(false)
   }
 
   const [autoSaveNotes, setAutoSaveNotes] = useState(true)
@@ -183,6 +181,27 @@ const index = ({ }: Props) => {
         isOpen={exportImportModal}
         // onExport={exportData}
         // onImport={importData}
+      />
+
+      <Confirm
+        visible={showClearDataConfirm}
+        title="Clear All Data"
+        message="This will permanently delete all your notes, categories, and settings. This action cannot be undone."
+        destructive={true}
+        icon={<Feather name="trash-2" size={32} color="#EF4444" />}
+        onDismiss={() => setShowClearDataConfirm(false)}
+        customButtons={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setShowClearDataConfirm(false),
+          },
+          {
+            text: 'Clear All Data',
+            style: 'destructive',
+            onPress: handleConfirmClearData,
+          },
+        ]}
       />
     </View>
   )
