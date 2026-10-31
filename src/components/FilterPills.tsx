@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { memo, useState, useRef, useEffect } from 'react'
 import {
   View,
   Text,
@@ -48,7 +48,9 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
         animated: true
       })
     },10)
-  }, [selected, list, filterRef?.current])
+  // compare by id: the home screen reloads these as new objects each time it's
+  // focused, which shouldn't scroll the pills again
+  }, [selected?.id, list.length])
 
   const isFirstItem = (index: number) => index === 0
   const isLastItem = (index: number) => index === list.length - 1
@@ -83,7 +85,7 @@ const FilterPills = ({list=[], selected, onChange, onAddBtnPress}:Props) => {
   )
 }
 
-export default FilterPills
+export default memo(FilterPills)
 
 const CategoryItem = (
   { item, index, handleSelection, activeFilter, isFirstItem} :

@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, TextInput, Pressable, useWindowDimensions, Keyboard } from 'react-native'
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { UNSTABLE_usePreventRemove as usePreventRemove, useNavigation, type NavigationAction } from "@react-navigation/native";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { format } from "date-fns";
 import {
@@ -10,8 +10,8 @@ import {
   deleteNote,
   type NoteType,
   processNoteContent,
+  getAutoSave as getAutoSaveNotesPreference,
 } from '@/store/notes';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Seperator from '@/components/Seperator';
 import Colors from '@/constants/Colors';
 import Feather from '@expo/vector-icons/Feather';
@@ -22,93 +22,83 @@ import Toast from 'react-native-root-toast';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { CategoryActionModes, getActiveCategory, getAllCategories, NoteCategoryType } from '@/store/categories';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import { useHeaderHeight } from '@react-navigation/elements'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller';
 import HeaderRight from '@/components/note/header/HeaderRight';
-import { getAutoSave as getAutoSaveNotesPreference } from '@/store/notes';
 import Textarea from '@/components/Textarea';
 import Confirm from '@/components/Confirm';
-import { useKeyboardHeight } from '@/utils/useKeyboardHeight';
+
+const AUTO_SAVE_DELAY = 1000
+
+const showToast = (text:string) => Toast.show(text, {
+  duration: Toast.durations.SHORT,
+  backgroundColor: '#C9C9C9',
+  shadow: false,
+  textColor: 'black',
+  containerStyle: {
+    borderRadius: 14,
+    padding: 10,
+  }
+})
+
+type SavedNoteState = Pick<NoteType, 'title'|'content'|'categoryId'>
 
 const NewNote = () => {
   const navigation = useNavigation()
   const params = useLocalSearchParams()
   const hasNoteId = params.noteId !== 'undefined'
   const [storedNoteId, setStoredNoteId] = useState<string|undefined>(undefined)
-  const { bottom } = useSafeAreaInsets()
   const { width:screenWidth } = useWindowDimensions()
-  const headerHeight = useHeaderHeight()
-  const keyboardHeight = useKeyboardHeight();
-  console.log('Keyboard Height:', keyboardHeight); // Debugging
 
-  function useDebounce<T extends (...args: any[]) => void>(
-    func: T,
-    wait = 500
-  ): T {
-    const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-      return () => {
-        if (timeout.current) clearTimeout(timeout.current);
-      };
-    }, []);
-
-    return ((...args: any[]) => {
-      if (timeout.current) clearTimeout(timeout.current);
-      timeout.current = setTimeout(() => {
-        func(...args);
-      }, wait);
-    }) as T;
-  }
-
-  const [note, setNote] = useState<NoteType>({
-    id: '',
+  const [note, setNote] = useState<NoteType>(() => ({
+    id: uuid.v4() as string,
     title: '',
     content: '',
     categoryId: '',
     createdAt: new Date(),
     updatedAt: new Date(),
-  })
+  }))
   const [selectedCategory, setSelectedcategory] = useState<NoteCategoryType|null>(null)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+  const categoryModal = useMemo(
+    () => [isCategoryModalOpen, setIsCategoryModalOpen] as [boolean, (value:boolean)=>void],
+    [isCategoryModalOpen]
+  )
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState<boolean|null>(null)
 
-  // used to track changes / dirtines of note
-  const [savedNoteState, setSavedNoteState] = useState<Partial<NoteType>>({
+  // what's in storage, used to work out whether the note has unsaved changes
+  const [savedNoteState, setSavedNoteState] = useState<SavedNoteState>({
     title: '',
     content: '',
+    categoryId: '',
   })
-  const [detectedTotalCost, setDetectedTotalCost] = useState(0)
-  const [detectedCurrencySymbol, setDetectedCurrencySymbol] = useState('#')
+  const savedNoteRef = useRef(savedNoteState)
+  const updateSavedNoteState = useCallback((next:SavedNoteState) => {
+    savedNoteRef.current = next
+    setSavedNoteState(next)
+  }, [])
 
   const contentInputRef = useRef<TextInput>(null)
+
+  useEffect(()=>{
+    getAutoSaveNotesPreference().then((value) => setAutoSaveEnabled(!!value))
+  },[])
+
   // set some guide default values
   useEffect(()=>{
     if(!hasNoteId) {
       (async ()=>{
-        const sample:NoteType = {
-          id: uuid.v4() as string,
-          title: '',
-          content: '',
-          categoryId: '', // will be updated later
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-        isDirty.current = true;
-
         // for categories, first check if user has an actively selected category
+        // if not, use the first category
         const activeCat = await getActiveCategory()
-        if(activeCat) {
-          setSelectedcategory(activeCat)
-          setNote({...sample, categoryId: activeCat.id})
-          setSavedNoteState({...sample, categoryId: activeCat.id})
-          return
-        }
-        // if not, set the first category as the active category
-        const cats = await getAllCategories()
-        if(cats.length) setSelectedcategory(cats[0])
-        setNote({...sample, categoryId: cats[0].id})
-        setSavedNoteState({...sample, categoryId: cats[0].id})
+        const category = activeCat || (await getAllCategories())?.[0]
+        if(!category) return
+        setSelectedcategory(category)
+        // only touches the category, in case typing has already started
+        setNote(prev => ({...prev, categoryId: category.id}))
+        updateSavedNoteState({...savedNoteRef.current, categoryId: category.id})
       })()
 
       // focus on content input if noteId is not available
@@ -121,37 +111,115 @@ const NewNote = () => {
     // get note details
     if (!hasNoteId) return
     (async () => {
-      const note = await getNoteById(params.noteId as string || '')
-      if (!note) return
-      setNote(note)
-      setSavedNoteState({
-        title: note.title,
-        content: note.content,
-        categoryId: note.categoryId,
+      const storedNote = await getNoteById(params.noteId as string || '')
+      if (!storedNote?.id) return
+      setNote(storedNote)
+      updateSavedNoteState({
+        title: storedNote.title,
+        content: storedNote.content,
+        categoryId: storedNote.categoryId,
       })
-      setStoredNoteId(note.id)
-      setSelectedcategory(note.category)
+      setStoredNoteId(storedNote.id)
+      setSelectedcategory(storedNote.category)
     })()
   },[])
 
   // used to process sum calculations
-  useEffect(()=>{
-    const { totalCost, currencySymbol } = processNoteContent(note.content)
-    setDetectedTotalCost(totalCost)
-    setDetectedCurrencySymbol(currencySymbol)
-  }, [note.content])
-  
-  const isDirty = useRef<boolean>()
-  const isTitleDirty = useRef<boolean>()
-  const isActiveCategoryDirty = useRef<boolean>()
-  const isSomethingDirty = useMemo(() => {
-    return isDirty.current || isTitleDirty.current || isActiveCategoryDirty.current
-  }, [isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
+  const { totalCost: detectedTotalCost, currencySymbol: detectedCurrencySymbol } = useMemo(
+    () => processNoteContent(note.content),
+    [note.content]
+  )
 
-  const checkIfDirty = ({oldValue, newValue}:{oldValue:string,newValue:string}) => {
-    return oldValue !== newValue
+  const isNewNote = !hasNoteId && !storedNoteId
+  const hasChanges = note.title !== savedNoteState.title
+    || note.content !== savedNoteState.content
+    || note.categoryId !== savedNoteState.categoryId
+  // a new note has nothing worth saving until something has been written
+  const canSave = hasChanges && (!isNewNote || !!note.title.trim() || !!note.content.trim())
+  const isAutoSavePending = !!autoSaveEnabled && canSave
+
+  // the latest values, for callbacks that shouldn't be recreated on each keystroke
+  const noteRef = useRef(note)
+  noteRef.current = note
+  const canSaveRef = useRef(canSave)
+  canSaveRef.current = canSave
+  const isDeleted = useRef(false)
+
+  // every save goes through here. The note is marked as saved straight away so
+  // the UI responds immediately, and put back if the write fails.
+  const persist = useCallback(async (snapshot:NoteType) => {
+    if (isDeleted.current) return false
+    const previous = savedNoteRef.current
+    const next = {
+      title: snapshot.title,
+      content: snapshot.content,
+      categoryId: snapshot.categoryId,
+    }
+    updateSavedNoteState(next)
+    const saved = await saveNote({ ...snapshot, updatedAt: new Date() })
+    if (!saved) {
+      if (savedNoteRef.current === next) updateSavedNoteState(previous)
+      return false
+    }
+    setStoredNoteId(snapshot.id)
+    return true
+  }, [])
+
+  // handle saving / updating note
+  const handleSaveNote = useCallback(async () => {
+    if (!canSaveRef.current) return
+    const saved = await persist(noteRef.current)
+    if (!saved && !isDeleted.current) showToast("Couldn't save note")
+  }, [])
+
+  // handle auto-saving
+  useEffect(() => {
+    if (!isAutoSavePending) return
+    const timeout = setTimeout(() => persist(noteRef.current), AUTO_SAVE_DELAY)
+    return () => clearTimeout(timeout)
+  }, [note.title, note.content, note.categoryId, isAutoSavePending])
+
+  // handle leaving with unsaved changes
+  const pendingLeaveAction = useRef<NavigationAction|null>(null)
+  const isSavingToLeave = useRef(false)
+  usePreventRemove(canSave, ({ data }) => {
+    if (isDeleted.current) {
+      navigation.dispatch(data.action)
+      return
+    }
+    if (isSavingToLeave.current) return
+    pendingLeaveAction.current = data.action
+
+    // autosave is on, so finish the pending save rather than asking
+    if (autoSaveEnabled) {
+      isSavingToLeave.current = true
+      persist(noteRef.current).then((saved) => {
+        isSavingToLeave.current = false
+        if (saved) {
+          navigation.dispatch(data.action)
+        } else {
+          // never leave silently if the save failed
+          showToast("Couldn't save note")
+          setShowLeaveConfirm(true)
+        }
+      })
+      return
+    }
+
+    Keyboard.dismiss()
+    setShowLeaveConfirm(true)
+  })
+
+  const handleDiscardAndLeave = () => {
+    if (pendingLeaveAction.current) navigation.dispatch(pendingLeaveAction.current)
   }
 
+  const handleDeleteNote = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    setShowDeleteConfirm(true)
+  }, [])
+
+  const noteStored = hasNoteId || !!storedNoteId
   useLayoutEffect(() => {
     navigation.setOptions({
       title: null,
@@ -162,111 +230,35 @@ const NewNote = () => {
         </TouchableOpacity>
       ),
       headerRight: () => <HeaderRight
-        noteStored={hasNoteId || !!storedNoteId}
-        noteDirty={isSomethingDirty}
+        noteStored={noteStored}
+        noteDirty={canSave}
         handleSaveNote={handleSaveNote}
-        handleDeleteNote={()=>handleDeleteNote(storedNoteId!)}
+        handleDeleteNote={handleDeleteNote}
       />,
       headerShadowVisible: false,
     })
-  }, [navigation, note.title, note.content, storedNoteId, isSomethingDirty])
+  }, [navigation, noteStored, canSave])
 
   const handleInputChange = ({field,value}:{field:'title'|'content',value:string}) => {
-    setNote(prev => {
-      const updated = { ...prev, [field]: value }
-
-      // Check dirtiness based on savedNoteState
-      if (field === 'title') {
-        isTitleDirty.current = checkIfDirty({
-          oldValue: savedNoteState.title ?? '',
-          newValue: value
-        })
-      }
-      if (field === 'content') {
-        isDirty.current = checkIfDirty({
-          oldValue: savedNoteState.content ?? '',
-          newValue: value
-        })
-      }
-
-      debounceAutoSave(updated)
-      return updated
-    })
-  }
-
-  // handle saving / updating note
-  const handleSaveNote = useCallback(() => {
-    saveNote({ ...note, updatedAt: new Date() })
-    setSavedNoteState({
-      title: note.title,
-      content: note.content,
-      categoryId: note.categoryId,
-    })
-    isDirty.current = false
-    isTitleDirty.current = false
-    isActiveCategoryDirty.current = false
-    setStoredNoteId(note.id)
-  }, [note])
-
-  // handle auto-saving
-  const [isSaving, setIsSaving] = useState(false);
-  const autoSave = useCallback(async (noteToSave: NoteType) => {
-    const autoSaveOn = await getAutoSaveNotesPreference()
-    if (!autoSaveOn) return
-
-    setIsSaving(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    saveNote({ ...noteToSave, updatedAt: new Date() })
-    setSavedNoteState({
-      title: noteToSave.title,
-      content: noteToSave.content,
-      categoryId: noteToSave.categoryId,
-    })
-    isDirty.current = false
-    isTitleDirty.current = false
-    isActiveCategoryDirty.current = false
-
-    // Force a re-render to update the UI and animated values
-    setNote(prevNote => ({ ...prevNote }))
-
-    setStoredNoteId(noteToSave.id)
-    setIsSaving(false)
-  }, [])
-  const debounceAutoSave = useDebounce(autoSave, 1000)
-
-  const handleDeleteNote = async (id:string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    setShowDeleteConfirm(true)
+    setNote(prev => ({ ...prev, [field]: value }))
   }
 
   const handleConfirmDelete = async () => {
-    // delete note
-    await deleteNote(storedNoteId!)
+    // stops any autosave from writing the note back after it's deleted.
+    // Saves already queued finish first, so the delete always wins
+    isDeleted.current = true
+    await deleteNote(noteRef.current.id)
     navigation.goBack()
     setShowDeleteConfirm(false)
   }
-  const handleCategoryUpdate = (cat:NoteCategoryType)=>{
+  const handleCategoryUpdate = useCallback((cat:NoteCategoryType)=>{
     setSelectedcategory(cat);
-    setNote({...note, categoryId: cat.id})
-    isActiveCategoryDirty.current = checkIfDirty({
-      oldValue: savedNoteState.categoryId,
-      newValue: cat.id
-    })
-  }
+    setNote(prev => ({...prev, categoryId: cat.id}))
+  }, [])
 
   const handleCopyTotalCost = async () =>{
     await Clipboard.setStringAsync(detectedTotalCost.toLocaleString());
-    
-    Toast.show('Cost Copied', {
-      duration: Toast.durations.SHORT,
-      backgroundColor: '#C9C9C9',
-      shadow: false,
-      textColor: 'black',
-      containerStyle: {
-        borderRadius: 14,
-        padding: 10,
-      }
-    });
+    showToast('Cost Copied')
   }
 
   const handleOpenCatModal = () =>{
@@ -276,8 +268,8 @@ const NewNote = () => {
 
   const isDirtySharedVal = useSharedValue(false)
   useEffect(()=>{
-    isDirtySharedVal.value = isSomethingDirty
-  },[isDirty.current, isTitleDirty.current, isActiveCategoryDirty.current])
+    isDirtySharedVal.value = canSave
+  },[canSave])
 
   const animatedBtnStyle = useAnimatedStyle(()=>{
     return {
@@ -302,16 +294,13 @@ const NewNote = () => {
     }
   })
 
-  // Animated style for floating button above keyboard
-  const floatingBtnStyle = useAnimatedStyle(() => {
-    // Add a margin (e.g., 20) above the keyboard
-    const bottom = keyboardHeight > 0 ? keyboardHeight + 20 : 40;
-    return {
-      bottom: withTiming(bottom, { duration: 250 }),
-      position: 'absolute',
-      right: 20,
-    };
-  }, [keyboardHeight]);
+  // moves with the keyboard frame by frame. The height is negative when open
+  const { height: keyboardHeight } = useReanimatedKeyboardAnimation()
+  const floatingBtnStyle = useAnimatedStyle(() => ({
+    bottom: Math.max(40, -keyboardHeight.value + 20),
+    position: 'absolute',
+    right: 20,
+  }))
 
   return (
     <View className='flex-1 bg-secondary'>
@@ -321,7 +310,7 @@ const NewNote = () => {
       <View className='h-full flex-1'>
         <View className='flex-row justify-between px-5 mt-4'>
           <Text className='text-gray-500'>
-            {format(note.updatedAt, "dd / MM / yy")} {isSaving && 'saving...'}
+            {format(note.updatedAt, "dd / MM / yy")} {isAutoSavePending && 'saving...'}
           </Text>
           <Text
             onPress={handleOpenCatModal}
@@ -357,20 +346,21 @@ const NewNote = () => {
 
         <Animated.View
           style={[animatedBtnStyle, floatingBtnStyle]}
+          pointerEvents={canSave ? 'auto' : 'none'}
         >
-          <Pressable onPress={handleSaveNote}>
-            {({pressed}) => {
-              pressedSharedVal.value = pressed
-              return (<Animated.View
-                style={[{elevation: 5}, animatedBtnOnpressStyle]}
-                className='flex-row self-end justify-center items-center gap-2
-              bg-accent px-5 py-3 rounded-full shadow-lg shadow-primary/20'>
-                <Entypo name="save" size={20} className='!text-black/70' />
-                <Text className='text-2xl text-black/70'>
-                  {!hasNoteId && !storedNoteId ? 'save' : 'update'}
-                </Text>
-              </Animated.View>)
-            }}
+          <Pressable
+            onPress={handleSaveNote}
+            onPressIn={()=>{ pressedSharedVal.value = true }}
+            onPressOut={()=>{ pressedSharedVal.value = false }}>
+            <Animated.View
+              style={[{elevation: 5}, animatedBtnOnpressStyle]}
+              className='flex-row self-end justify-center items-center gap-2
+            bg-accent px-5 py-3 rounded-full shadow-lg shadow-primary/20'>
+              <Entypo name="save" size={20} className='!text-black/70' />
+              <Text className='text-2xl text-black/70'>
+                {isNewNote ? 'save' : 'update'}
+              </Text>
+            </Animated.View>
           </Pressable>
         </Animated.View>
       </View>
@@ -378,7 +368,7 @@ const NewNote = () => {
         mode={CategoryActionModes.SELECT}
         onCategorySelect={handleCategoryUpdate}
         activeCategory={selectedCategory}
-        isOpen={[isCategoryModalOpen, setIsCategoryModalOpen]}
+        isOpen={categoryModal}
       />
 
       <Confirm
@@ -397,6 +387,24 @@ const NewNote = () => {
             text: 'Delete',
             style: 'destructive',
             onPress: handleConfirmDelete,
+          },
+        ]}
+      />
+
+      <Confirm
+        visible={showLeaveConfirm}
+        title="Unsaved changes"
+        message="Discard your changes and leave?"
+        onDismiss={() => setShowLeaveConfirm(false)}
+        customButtons={[
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Discard',
+            style: 'destructive',
+            onPress: handleDiscardAndLeave,
           },
         ]}
       />

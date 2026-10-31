@@ -60,11 +60,20 @@ const ManageCategories = ({
   const [renderedCategories, setRenderedCategories] = useState<NoteCategoryType[]>([])
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null)
+  const trimmedNewCat = newCat.trim()
+  const isDuplicateCat = !!renderedCategories?.some(
+    (cat)=>cat.name.trim().toLocaleLowerCase() === trimmedNewCat
+  )
+  const canAddCat = !!trimmedNewCat && !isDuplicateCat
+  // guards against a quick double tap creating the category twice
+  const isCreatingCat = useRef(false)
   const handleCreateCategory = async ()=>{
-    if(!newCat?.trim()) return setNewCat('')
+    if(!trimmedNewCat) return setNewCat('')
+    if(isDuplicateCat || isCreatingCat.current) return
+    isCreatingCat.current = true
     const payload: NoteCategoryType = {
       id: uuid.v4() as string,
-      name: newCat,
+      name: trimmedNewCat,
     }
     try {
       await saveCategory(payload)
@@ -74,11 +83,10 @@ const ManageCategories = ({
         return newCat
       })
       setNewCat('')
-      // doing this because the bottomsheet doesn't shrink back down
-      // even when keyboard is dismissed
-      bottomSheetModalRef.current?.snapToIndex(1)
     } catch(err) {
       alert(err)
+    } finally {
+      isCreatingCat.current = false
     }
   }
   const handleDeleteCategory = async (id:string)=>{
@@ -120,22 +128,34 @@ const ManageCategories = ({
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
           keyboardBehavior="interactive"
+          // shrinks the sheet back down when the keyboard is dismissed
+          keyboardBlurBehavior="restore"
           onDismiss={() => setOpenState(false)}
           backgroundStyle={{backgroundColor: Colors.dark.primary}}
           handleIndicatorStyle={{backgroundColor: Colors.dark.secondary}}
         >
           <BottomSheetView className='flex-1 px-5'>
             <View style={{paddingBottom:bottom}} className='flex-1'>
-              {activeMode === CategoryActionModes.EDIT && <BottomSheetTextInput
-                value={newCat}
-                onChangeText={handleSetNewCat}
-                onSubmitEditing={handleCreateCategory}
-                autoCapitalize="none"
-                placeholder='add new category'
-                enterKeyHint='done'
-                className='self-stretch bg-white/10 p-4 py-3 text-lg leading-[18px]
-                text-white placeholder:text-white/50 rounded-3xl'
-              />}
+              {activeMode === CategoryActionModes.EDIT && <View className='flex-row items-center gap-2'>
+                <BottomSheetTextInput
+                  value={newCat}
+                  onChangeText={handleSetNewCat}
+                  onSubmitEditing={handleCreateCategory}
+                  autoCapitalize="none"
+                  placeholder='add new category'
+                  enterKeyHint='done'
+                  className='flex-1 bg-white/10 p-4 py-3 text-lg leading-[18px]
+                  text-white placeholder:text-white/50 rounded-3xl'
+                />
+                <Pressable
+                  onPress={handleCreateCategory}
+                  disabled={!canAddCat}
+                  accessibilityRole="button"
+                  accessibilityLabel="Add category"
+                  className={`bg-accent px-5 py-3 rounded-3xl ${canAddCat ? '' : 'opacity-40'}`}>
+                  <Text className='text-lg leading-[18px] font-semibold text-black/70'>add</Text>
+                </Pressable>
+              </View>}
               <View className='flex-row justify-between'>
                 <Text className='mt-3 text-lg font-medium text-white/50'>Categories</Text>
                 {mode === CategoryActionModes.SELECT && (
@@ -204,7 +224,7 @@ const ManageCategories = ({
   )
 }
 
-export default ManageCategories
+export default React.memo(ManageCategories)
 
 const CategoryItem = ({
   category,

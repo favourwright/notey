@@ -27,26 +27,48 @@ export type ExportDataType = {
   version: string
 }
 
-export const saveNote = async (payload:NoteType) => {
+// All notes live under one storage key, so every write reads the list, changes
+// it and writes it back. Running writes one at a time stops them overwriting
+// each other, and lets reads wait for any write that's still in progress.
+let writeQueue: Promise<unknown> = Promise.resolve()
+const enqueueWrite = <T>(task: () => Promise<T>): Promise<T> => {
+  const run = writeQueue.then(task)
+  writeQueue = run.catch(() => {})
+  return run
+}
+
+// Throws if storage can't be read, so a failed read can never be mistaken for
+// an empty list and then written back over the user's notes.
+const readAllNotes = async () => {
+  const value = await AsyncStorage.getItem(STORE_KEY);
+  if (value === null) return []
+  const notes = JSON.parse(value) as NoteType[]
+  // prefill category details
+  const categories = await getAllCategories()
+  return notes.map(note => ({
+    ...note,
+    category: categories?.length ? categories.find(cat => cat.id === note.categoryId) : null,
+  }))
+}
+
+export const saveNote = (payload:NoteType) => enqueueWrite(async () => {
   try {
-    const previousNotes = await getAllNotes()
+    const previousNotes = await readAllNotes()
     // check if note already exists
     const excludExistingNote = previousNotes.filter(note => note.id !== payload.id)
     const newNotes = [payload, ...excludExistingNote]
     await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newNotes))
+    return true
   } catch (e) {
     console.log({SaveNoteError: e})
+    return false
   }
-};
+});
 
 export const getAllNotes = async () => {
   try {
-    const value = await AsyncStorage.getItem(STORE_KEY);
-    if (value === null) return []
-    const notes = JSON.parse(value) as NoteType[]
-    // prefill category details
-    const categories = await Promise.all(notes.map(note => getCategoryById(note.categoryId)))
-    return notes.map((note, index) => ({...note, category: categories[index]}))
+    await writeQueue
+    return await readAllNotes()
   } catch (e) {
     console.log({GetAllNotesError: e})
   }
@@ -55,6 +77,7 @@ export const getAllNotes = async () => {
 
 export const getNoteById = async (noteId:string) => {
   try {
+    await writeQueue
     const value = await AsyncStorage.getItem(STORE_KEY);
     if (value === null) return null
     const notes = JSON.parse(value) as NoteType[]
@@ -78,7 +101,7 @@ export const setAutoSave = async (autoSaveEnabled:boolean) => {
 export const getAutoSave = async () => {
   try {
     const value = await AsyncStorage.getItem(AUTO_SAVE_STATE_KEY);
-    if (value === null) return false
+    if (value === null) return true
     return JSON.parse(value).autoSaveEnabled
   } catch (e) {
     console.log({GetAutoSaveError: e})
@@ -93,15 +116,15 @@ export const clearAllNotes = async () => {
   }
 }
 
-export const deleteNote = async (noteId:string) => {
+export const deleteNote = (noteId:string) => enqueueWrite(async () => {
   try {
-    const previousNotes = await getAllNotes()
+    const previousNotes = await readAllNotes()
     const newNotes = previousNotes.filter(note => note.id !== noteId)
     await AsyncStorage.setItem(STORE_KEY, JSON.stringify(newNotes))
   } catch (e) {
     console.log({DeleteNoteError: e})
   }
-}
+})
 
 // sample grocery list
 export const sampleTemplate: string[] = [

@@ -19,11 +19,13 @@ const Textarea = ({ value, onChangeText, contentInputRef, screenWidth, placehold
     <KeyboardAwareScrollView
       className='flex-1'
       keyboardShouldPersistTaps="handled"
+      // keeps the line being typed above the floating save button
+      bottomOffset={90}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{
         flexGrow: 1,
         paddingHorizontal: 20,
-        paddingBottom: bottom + 20,
+        paddingBottom: bottom + 90,
       }}
     >
       <TextInput
